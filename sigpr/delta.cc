@@ -40,9 +40,6 @@
 #include <cstdlib>
 #include "EST_Track.h"
 #include "EST_Wave.h"
-
-using namespace std;
-
 # define MAX_DELTA_ORDER 2
 /// max. number of points on which the delta co-eff is based
 # define MAX_REGRESSION_LENGTH 4
@@ -51,7 +48,7 @@ static float compute_gradient(const EST_FVector &x, int num_points);
 
 void delta(EST_Track &tr, EST_Track &d, int regression_length)
 {
-    ssize_t reg_index, this_index;
+    int reg_index, this_index;
     
     // need at least two points to compute gradient
     if ((regression_length < 2)||(regression_length > MAX_REGRESSION_LENGTH)){
@@ -63,8 +60,8 @@ void delta(EST_Track &tr, EST_Track &d, int regression_length)
     // temp stores the points passed to compute_gradient
     EST_FVector temp(regression_length);
     
-    for (ssize_t j = 0; j < tr.num_channels(); j++ )
-	for (ssize_t i = 0; i < tr.num_frames(); i++)
+    for (int j = 0; j < tr.num_channels(); j++ )
+	for (int i = 0; i < tr.num_frames(); i++)
 	{
 	    // copy values needed to compute gradient into temp[]
 	    for (reg_index=0; reg_index<regression_length; reg_index++)

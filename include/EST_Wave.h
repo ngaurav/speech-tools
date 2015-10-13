@@ -51,16 +51,16 @@ class EST_String;
 class EST_TokenStream;
 
 
-/** \class EST_Wave 
- *  \brief A class for storing digital waveforms.
- * The waveform is stored as an array of 16 bit shorts.
- *  Multiple channels are supported, but if no channel information
- * is given the 0th channel is accessed.
- * 
- * The waveforms can be of any sample rate, and can be changed to
- * another sampling rate using the \ref resample function.
+/** A class for storing digital waveforms. The waveform is stored as
+an array of 16 bit shorts. Multiple channels are supported, but if no
+channel information is given the 0th channel is accessed.
+<p>
+
+The waveforms can be of any sample rate, and can be changed to another
+sampling rate using the <tt>resample</tt> function.
 
 */
+
 class EST_Wave : public EST_Featured
 {
 protected:
@@ -68,7 +68,7 @@ protected:
 
   int p_sample_rate;
 
-  void default_vals(ssize_t n=0, ssize_t c=1);
+  void default_vals(int n=0, int c=1);
   void free_wave();
   void copy_data(const EST_Wave &w);
   void copy_setup(const EST_Wave &w);
@@ -76,17 +76,17 @@ protected:
 public:
 
   static const int default_sample_rate;
-  static const ssize_t default_num_channels;
+  static const int default_num_channels;
 
   /// default constructor
   EST_Wave();
   /// copy constructor
   EST_Wave(const EST_Wave &a);
 
-  EST_Wave(ssize_t n, ssize_t c, int sr);
+  EST_Wave(int n, int c, int sr);
 
   /// Construct from memory supplied by caller
-  EST_Wave(ssize_t samps, ssize_t chans,
+  EST_Wave(int samps, int chans,
 	   short *memory, int offset=0, int sample_rate=default_sample_rate, 
 	   int free_when_destroyed=0);
   
@@ -94,61 +94,61 @@ public:
     
 
   /**@name Access functions for finding amplitudes of samples */
-  ///@{
+  //@{
 
   /** return amplitude of sample <tt>i</tt> from channel <tt>
       channel</tt>.  By default the 0th channel is selected. This
       function can be used for assignment.
   */
-  short &a(ssize_t i, ssize_t channel = 0);
-  short a(ssize_t i, ssize_t channel = 0) const;
-  INLINE short &a_no_check(ssize_t i, ssize_t channel = 0)
+  short &a(int i, int channel = 0);
+  short a(int i, int channel = 0) const;
+  INLINE short &a_no_check(int i, int channel = 0)
         { return p_values.a_no_check(i,channel); }
-  INLINE short a_no_check(ssize_t i, ssize_t channel = 0) const
+  INLINE short a_no_check(int i, int channel = 0) const
         { return p_values.a_no_check(i,channel); }
-  INLINE short &a_no_check_1(ssize_t i, ssize_t channel = 0)
+  INLINE short &a_no_check_1(int i, int channel = 0)
         { return p_values.a_no_check_1(i,channel); }
-  INLINE short a_no_check_1(ssize_t i, ssize_t channel = 0) const
+  INLINE short a_no_check_1(int i, int channel = 0) const
         { return p_values.a_no_check_1(i,channel); }
 
   
   /** explicit set_a, easier to wrap than assignment
    */
-  INLINE short set_a(ssize_t i, ssize_t channel = 0, short val = 0)
+  INLINE short set_a(int i, int channel = 0, short val = 0)
   { return a(i,channel) = val; }
 
   /** return amplitude of sample <tt>i</tt> from channel <tt>
       channel</tt>.  By default the 0th channel is selected.
   */
-  short operator()(ssize_t i, ssize_t channel) const
+  short operator()(int i, int channel) const
     { return a(i,channel); }
 
   /** return amplitude of sample <tt>i</tt> from channel 0. 
     */
-  short operator()(ssize_t i) const
-    { return a(i,0UL); }
+  short operator()(int i) const
+    { return a(i,0); }
        
   /** Version of a() that returns zero if index is out of array
       bounds.  This is particularly useful in signal processing when
       you want to have windows going off the end of the waveform.  */
-  short &a_safe(ssize_t i, ssize_t channel = 0);
+  short &a_safe(int i, int channel = 0);
 
   /// return the time position in seconds of the ith sample
-  float t(ssize_t i) const { return (float)i/(float)p_sample_rate; }
-  ///@}
+  float t(int i) const { return (float)i/(float)p_sample_rate; }
+  //@}
 
   /**@name Information functions */
-  ///@{
+  //@{
   /// return the number of samples in the waveform
-  ssize_t num_samples() const { return p_values.num_rows();}
+  int num_samples() const { return p_values.num_rows();}
   /// return the number of channels in the waveform
-  ssize_t num_channels() const { return p_values.num_columns(); }
+  int num_channels() const { return p_values.num_columns(); }
   /// return the sampling rate (frequency)
   int sample_rate() const { return p_sample_rate; }
   /// Set sampling rate to <tt>n</tt>
   void set_sample_rate(const int n){p_sample_rate = n;}
   /// return the size of the waveform, i.e. the number of samples.
-  ssize_t length() const { return num_samples();}
+  int length() const { return num_samples();}
   /// return the time position of the last sample.
   float end(){ return t(num_samples()-1); }
 
@@ -172,13 +172,13 @@ public:
   /// Sets name.
   void set_name(const EST_String n){ f_set("name", n); }
 
-  ///@}
+  //@}
 
   const EST_SMatrix &values() const { return p_values; }
   EST_SMatrix &values() { return p_values; }
 
   /**@name Waveform manipulation functions */
-  ///@{
+  //@{
 
   /// resize the waveform 
   void resize(int num_samples, int num_channels = EST_ALL, int set=1) 
@@ -204,86 +204,88 @@ public:
 
   void copy(const EST_Wave &from);
 
-  void fill(short v=0, ssize_t channel=EST_ALL);
+  void fill(short v=0, int channel=EST_ALL);
 
-  void empty(ssize_t channel=EST_ALL) { fill(0,channel); }
+  void empty(int channel=EST_ALL) { fill(0,channel); }
 
-  void sample(EST_TVector<short> &sv, ssize_t n)
+  void sample(EST_TVector<short> &sv, int n)
     { p_values.row(sv, n); }
-  void channel(EST_TVector<short> &cv, ssize_t n)
+  void channel(EST_TVector<short> &cv, int n)
     { p_values.column(cv, n); }
 
-  void copy_channel(ssize_t n, short *buf, int offset=0, ssize_t num=EST_ALL) const
+  void copy_channel(int n, short *buf, int offset=0, int num=EST_ALL) const
     { p_values.copy_column(n, buf, offset, num); } 
-  void copy_sample(ssize_t n, short *buf, int offset=0, ssize_t num=EST_ALL) const
+  void copy_sample(int n, short *buf, int offset=0, int num=EST_ALL) const
     {  p_values.copy_row(n, buf, offset, num); } 
 
-  void set_channel(ssize_t n, const short *buf, int offset=0, ssize_t num=EST_ALL)
+  void set_channel(int n, const short *buf, int offset=0, int num=EST_ALL)
     { p_values.set_column(n, buf, offset, num); }
-  void set_sample(ssize_t n, const short *buf, int offset=0, ssize_t num=EST_ALL)
+  void set_sample(int n, const short *buf, int offset=0, int num=EST_ALL)
     { p_values.set_row(n, buf, offset, num); }
 
 
   void sub_wave(EST_Wave &sw, 
-		int offset=0, ssize_t num=EST_ALL,
-		ssize_t start_c=0, ssize_t nchan=EST_ALL);
+		int offset=0, int num=EST_ALL,
+		int start_c=0, int nchan=EST_ALL);
 
   void sub_wave(EST_Wave &sw, 
-		int offset=0, ssize_t num=EST_ALL,
-		ssize_t start_c=0, ssize_t nchan=EST_ALL) const
+		int offset=0, int num=EST_ALL,
+		int start_c=0, int nchan=EST_ALL) const
     { ((EST_Wave *)this)->sub_wave(sw, offset, num, start_c, nchan); }
 
-  ///@}
+  //@}
 
   /**@name File i/o functions */
-  ///@{
+  //@{
 
   /** Load a file into the waveform. The load routine attempts to
       automatically determine which file type is being loaded.  A
-      portion of the waveform can be loaded by setting 
-      `offset` to the sample position from the beginning and
-      `length` to the number of required samples after this.  */
+      portion of the waveform can be loaded by setting <tt>
+      offset</tt> to the sample position from the beginning and
+      <length> to the number of required samples after this.  */
+
   EST_read_status load(const EST_String filename, 
 		       int offset=0, 
-		       ssize_t length = 0,
+		       int length = 0,
 		       int rate = default_sample_rate);
 
   EST_read_status load(EST_TokenStream &ts,
 		       int offset=0, 
-		       ssize_t length = 0,
+		       int length = 0,
 		       int rate = default_sample_rate);
 
   EST_read_status load(const EST_String filename, 
 		       const EST_String filetype,
 		       int offset=0, 
-		       ssize_t length = 0,
+		       int length = 0,
 		       int rate = default_sample_rate);
 
   EST_read_status load(EST_TokenStream &ts,
 		       const EST_String filetype,
 		       int offset=0, 
-		       ssize_t length = 0,
+		       int length = 0,
 		       int rate = default_sample_rate);
 
-  /** Load a file of type `filetype` into the waveform. This
+  /** Load a file of type <tt>filetype</tt> into the waveform. This
       can be used to load unheadered files, in which case the fields
-      `sample_rate`, `sample_type`, `bo` and `nc` are used
+      <tt>sample_rate, sample_type, bo</tt> and <tt>nc</tt> are used
       to specify the sample rate, type, byte order and number of
       channels.  A portion of the waveform can be loaded by setting
-      `offset` to the sample position from the beginning and
-      `length` to the number of required samples after this.
+      <tt> offset</tt> to the sample position from the beginning and
+      <length> to the number of required samples after this.
   */
+
   EST_read_status load_file(const EST_String filename, 
 			    const EST_String filetype, int sample_rate, 
-			    const EST_String sample_type, int bo, ssize_t nc,
-			    int offset = 0, ssize_t length = 0);
+			    const EST_String sample_type, int bo, int nc,
+			    int offset = 0, int length = 0);
   EST_read_status load_file(EST_TokenStream &ts,
 			    const EST_String filetype, int sample_rate, 
-			    const EST_String sample_type, int bo, ssize_t nc,
-			    int offset = 0, ssize_t length = 0);
+			    const EST_String sample_type, int bo, int nc,
+			    int offset = 0, int length = 0);
 
-  /** Save waveform to a file called `filename` of file
-     format `EST_filetype`.
+  /* Save waveform to a file called <tt>filename</tt> of file
+     format <tt>EST_filetype</tt>.
   */
   EST_write_status save(const  EST_String filename, 
 			const EST_String EST_filetype = "");
@@ -293,19 +295,12 @@ public:
 
   EST_write_status save_file(const EST_String filename, 
 			     EST_String filetype,
-			     EST_String sample_type, int bo, const char *mode = "wb");
+			     EST_String sample_type, int bo);
 
   EST_write_status save_file(FILE *fp,
 			     EST_String filetype,
 			     EST_String sample_type, int bo);
-
-  EST_write_status save_file_header(FILE *fp,
-				     EST_String ftype,
-				     EST_String stype, int obo);
-  EST_write_status save_file_data(FILE *fp,
-				     EST_String ftype,
-				     EST_String stype, int obo);
-  ///@}
+  //@}
 
   /// Assignment operator
   EST_Wave& operator = (const EST_Wave& w);

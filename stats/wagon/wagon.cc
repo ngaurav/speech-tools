@@ -52,8 +52,6 @@
 #include "EST_Wagon.h"
 #include "EST_math.h"
 
-using namespace std;
-
 Discretes wgn_discretes;
 
 WDataSet wgn_dataset;
@@ -86,7 +84,7 @@ static float test_tree_vector(WNode &tree,WDataSet &dataset,ostream *output);
 static float test_tree_trajectory(WNode &tree,WDataSet &dataset,ostream *output);
 static float test_tree_ols(WNode &tree,WDataSet &dataset,ostream *output);
 static int wagon_split(int margin,WNode &node);
-static void find_best_question(WVectorVector &dset, WQuestion &best_ques);
+static WQuestion find_best_question(WVectorVector &dset);
 static void construct_binary_ques(int feat,WQuestion &test_ques);
 static float construct_float_ques(int feat,WQuestion &ques,WVectorVector &ds);
 static float construct_class_ques(int feat,WQuestion &ques,WVectorVector &ds);
@@ -380,7 +378,7 @@ static float test_tree_vector(WNode &tree,WDataSet &dataset,ostream *output)
     float predict, actual;
     EST_SuffStats x,y,xx,yy,xy,se,e;
     EST_SuffStats b;
-    ssize_t i,pos;
+    int i,j,pos;
     double cor,error;
     double count;
     EST_Litem *pp;
@@ -389,8 +387,8 @@ static float test_tree_vector(WNode &tree,WDataSet &dataset,ostream *output)
     {
 	leaf = tree.predict_node((*dataset(p)));
 	pos = dataset(p)->get_int_val(wgn_predictee);
-        for (int j=0; j<wgn_VertexFeats.num_channels(); j++)
-            if (wgn_VertexFeats.a(static_cast<ssize_t>(0),j) > 0.0)
+        for (j=0; j<wgn_VertexFeats.num_channels(); j++)
+            if (wgn_VertexFeats.a(0,j) > 0.0)
             {
                 b.reset();
                 for (pp=leaf->get_impurity().members.head(); pp != 0; pp=pp->next())
@@ -411,6 +409,7 @@ static float test_tree_vector(WNode &tree,WDataSet &dataset,ostream *output)
                     error = predict-actual;
                 else
                     error = (predict-actual)/b.stddev();
+                error = predict-actual; /* awb_debug */
                 se.cumulate((error*error),count);
                 e.cumulate(fabs(error),count);
                 xx.cumulate(predict*predict,count);
@@ -468,7 +467,7 @@ static float test_tree_trajectory(WNode &tree,WDataSet &dataset,ostream *output)
     float predict, actual;
     EST_SuffStats x,y,xx,yy,xy,se,e;
     EST_SuffStats b;
-    ssize_t i,j,pos;
+    int i,j,pos;
     double cor,error;
     double count;
     EST_Litem *pp;
@@ -478,7 +477,7 @@ static float test_tree_trajectory(WNode &tree,WDataSet &dataset,ostream *output)
 	leaf = tree.predict_node((*dataset(p)));
 	pos = dataset(p)->get_int_val(wgn_predictee);
         for (j=0; j<wgn_VertexFeats.num_channels(); j++)
-            if (wgn_VertexFeats.a(static_cast<ssize_t>(0),j) > 0.0)
+            if (wgn_VertexFeats.a(0,j) > 0.0)
             {
                 b.reset();
                 for (pp=leaf->get_impurity().members.head(); pp != 0; pp=pp->next())
@@ -499,6 +498,7 @@ static float test_tree_trajectory(WNode &tree,WDataSet &dataset,ostream *output)
                     error = predict-actual;
                 else
                     error = (predict-actual)/b.stddev();
+                error = predict-actual; /* awb_debug */
                 se.cumulate((error*error),count);
                 e.cumulate(fabs(error),count);
                 xx.cumulate(predict*predict,count);
@@ -565,18 +565,14 @@ static float test_tree_cluster(WNode &tree,WDataSet &dataset,ostream *output)
 
     if (output != NULL)
     {
-        int rightnumber = 0;
-        if (dataset.length() > 0) {
-            rightnumber = (int)(100.0*(float)right_cluster/(float)dataset.length());
-        }
 	// Want number in right class, mean distance in sds, mean ranking
 	if (output != &cout)   // save in output file
 	    *output << ";; Right cluster " << right_cluster << " (" <<
-		rightnumber << 
+		(int)(100.0*(float)right_cluster/(float)dataset.length()) << 
 		    "%) mean ranking " << ranking.mean() << " mean distance "
 			<< meandist.mean() << endl;
 	cout << "Right cluster " << right_cluster << " (" <<
-	    rightnumber << 
+	    (int)(100.0*(float)right_cluster/(float)dataset.length()) << 
 		"%) mean ranking " << ranking.mean() << " mean distance "
 		    << meandist.mean() << endl;
     }
@@ -653,7 +649,7 @@ static float test_tree_ols(WNode &tree,WDataSet &dataset,ostream *output)
 {
     // Test tree against data to get summary of results OLS
     EST_Litem *p;
-    /*WNode *leaf;  // unused */
+    WNode *leaf;
     float predict,real;
     EST_SuffStats x,y,xx,yy,xy,se,e;
     double cor,error;
@@ -661,7 +657,7 @@ static float test_tree_ols(WNode &tree,WDataSet &dataset,ostream *output)
 
     for (p=dataset.head(); p != 0; p=p->next())
     {
-	/*leaf = */tree.predict_node((*dataset(p)));
+	leaf = tree.predict_node((*dataset(p)));
         // do ols to get predict;
         predict = 0.0;
 	real = dataset(p)->get_flt_val(wgn_predictee);
@@ -724,7 +720,7 @@ static int wagon_split(int margin, WNode &node)
     WNode *l,*r;
 
     node.set_impurity(WImpurity(node.get_data()));
-    find_best_question(node.get_data(), q);
+    q = find_best_question(node.get_data());
 
 /*    printf("q.score() %f impurity %f\n",
 	   q.get_score(),
@@ -788,13 +784,12 @@ void wgn_find_split(WQuestion &q,WVectorVector &ds,
 
 }
 
-static void find_best_question(WVectorVector &dset,
-                               WQuestion &best_ques)
+static WQuestion find_best_question(WVectorVector &dset)
 {
     //  Ask all possible questions and find the best one
     int i;
     float bscore,tscore;
-    WQuestion test_ques;
+    WQuestion test_ques, best_ques;
 
     bscore = tscore = WGN_HUGE_VAL;
     best_ques.set_score(bscore);
@@ -833,7 +828,7 @@ static void find_best_question(WVectorVector &dset,
 	}
     }
 
-    return;
+    return best_ques;
 }
 
 static float construct_class_ques(int feat,WQuestion &ques,WVectorVector &ds)

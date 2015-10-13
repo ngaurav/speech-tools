@@ -41,11 +41,9 @@
 
 PROJECT_NAME = Edinburgh Speech Tools Library
 PROJECT_PREFIX = EST
-PROJECT_MAJOR_VERSION = 2
-PROJECT_MINOR_VERSION = 3
-PROJECT_VERSION = 2.3
-PROJECT_DATE = July 2013
-PROJECT_STATE = current
+PROJECT_VERSION = 2.4
+PROJECT_DATE = December 2014
+PROJECT_STATE = release
 
 # Speech tools knows where speech_tools is. Probably.
 
@@ -105,15 +103,12 @@ PROJECT_LIBRARY_USES_estbase = eststring
 
 PROJECT_LIBRARY_USES_estjava = estbase eststring
 
-# These are used for the SONAME fields in ELF libraries
-PROJECT_LIBRARY_VERSION_estools = $(PROJECT_MAJOR_VERSION).$(PROJECT_MINOR_VERSION)
-PROJECT_LIBRARY_VERSION_estbase = $(PROJECT_MAJOR_VERSION).$(PROJECT_MINOR_VERSION)
-PROJECT_LIBRARY_VERSION_eststring = $(PROJECT_MAJOR_VERSION).$(PROJECT_MINOR_VERSION)
-PROJECT_LIBRARY_VERSION_estjava = $(PROJECT_MAJOR_VERSION).$(PROJECT_MINOR_VERSION)
+PROJECT_LIBRARY_VERSION_estools = $(PROJECT_VERSION).1
+PROJECT_LIBRARY_VERSION_estbase = $(PROJECT_VERSION).1
+PROJECT_LIBRARY_VERSION_eststring = 1.2
+PROJECT_LIBRARY_VERSION_estjava = $(PROJECT_VERSION).1
 
 PROJECT_LIBRARY_NEEDS_SYSLIBS_estjava=1
-# This line allows estbase to link with libpulse among others
-PROJECT_LIBRARY_NEEDS_SYSLIBS_estbase=1
 
 PROJECT_DEFAULT_LIBRARY = estools
 
@@ -138,4 +133,8 @@ PROJECT_TEMPLATE_DIRS = include audio utils \
         base_class base_class/string base_class/templ_inst \
         ling_class speech_class sigpr stats grammar
 PROJECT_TEMPLATE_DBS  = $(TOP)
+
+# Places to look for documentation
+
+DOCXX_DIRS = $(TOP)/include $(TOP)/testsuite
 

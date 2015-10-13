@@ -43,7 +43,6 @@ class EST_Track;
 #ifndef __Track_H__
 #define __Track_H__
 
-#include <cstdlib>
 #include "EST_FMatrix.h"
 #include "EST_types.h"
 #include "EST_TrackMap.h"
@@ -131,10 +130,10 @@ public:
     EST_Track(const EST_Track &a);
 
     /// resizing constructor
-    EST_Track(ssize_t num_frames, int num_channels);
+    EST_Track(int num_frames, int num_channels);
 
     /// resizing constructor
-    EST_Track(ssize_t num_frames, EST_StrList &map);
+    EST_Track(int num_frames, EST_StrList &map);
 
     /// default destructor
     ~EST_Track();
@@ -144,26 +143,26 @@ public:
      */
     //@{
     
-    /** resize the track to have `num_frames` and `num_channels`.
-	if `preserve` is set to 1, any existing values in the track
+    /** resize the track to have {\tt num_frames} and {\tt num_channels}.
+	if {\tt preserve} is set to 1, any existing values in the track
 	are kept, up to the limits imposed by the new number of frames
 	and channels. If the new track size is bigger, new positions
 	are filled with 0 */
-    void resize(ssize_t num_frames, int num_channels, bool preserve = 1);
+    void resize(int num_frames, int num_channels, bool preserve = 1);
 
-    /** resize the track to have `num_frames` and `num_channels`.
-	if `preserve` is set to 1, any existing values in the track
+    /** resize the track to have {\tt num_frames} and {\tt num_channels}.
+	if {\tt preserve} is set to 1, any existing values in the track
 	are kept, up to the limits imposed by the new number of frames
 	and channels. If the new track size is bigger, new positions
 	are filled with 0 */
-    void resize(ssize_t num_frames, EST_StrList &map, bool preserve = 1);
+    void resize(int num_frames, EST_StrList &map, bool preserve = 1);
 
     /** resize the track's auxiliary channels.
      */
     void resize_aux(EST_StrList &map, bool preserve = 1);
 
     /** Change the number of channels while keeping the number of
-	frames the same.  if `preserve` is set to 1, any existing
+	frames the same.  if {\tt preserve} is set to 1, any existing
 	values in the track are kept, up to the limits imposed by the
 	new number of frames and channels. If the new track size is
 	bigger, new positions are filled with 0 */
@@ -171,11 +170,11 @@ public:
 	{ resize(EST_CURRENT, n, preserve); }
 
     /** Change the number of frames while keeping the number of
-	channels the same.  if `preserve` is set to 1, any
+	channels the same.  if {\tt preserve} is set to 1, any
 	existing values in the track are kept, up to the limits
 	imposed by the new number of frames and channels. If the new
 	track size is bigger, new positions are filled with 0 */
-    void set_num_frames(ssize_t n, bool preserve = 1)
+    void set_num_frames(int n, bool preserve = 1)
 	{ resize(n, EST_CURRENT, preserve); }
 
     /// set the name of the channel.
@@ -205,22 +204,22 @@ public:
      */
     //@{
 
-    /** make `fv` a window to frame `n` in the track. 
+    /** make {\tt fv} a window to frame {\tt n} in the track. 
      */
     void frame(EST_FVector &fv, int n, int startf=0, int nf=EST_ALL)
 	{ p_values.row(fv, n, startf, nf); }
 
-    /** make `fv` a window to channel `n` in the track. 
+    /** make {\tt fv} a window to channel {\tt n} in the track. 
      */
-    void channel(EST_FVector &cv, ssize_t n, int startf=0, int nf=EST_ALL)
+    void channel(EST_FVector &cv, int n, int startf=0, int nf=EST_ALL)
 	{ p_values.column(cv, n, startf, nf); }
 
-    /** make `fv` a window to the named channel in the track. 
+    /** make {\tt fv} a window to the named channel in the track. 
      */
     void channel(EST_FVector &cv, const char * name, int startf=0, 
 		 int nf=EST_ALL);
 
-    /** make `st` refer to a portion of the track. No values
+    /** make {\tt st} refer to a portion of the track. No values
 	are copied - an internal pointer in st is set to the specified
 	portion of the the track. After this, st behaves like a normal
 	track. Its first channel is the same as start_channel and its
@@ -236,7 +235,7 @@ public:
 	         int start_frame=0, int nframes=EST_ALL,
 		   int start_chan=0, int nchans=EST_ALL);
 
-    /** make `st` refer to a portion of the track. No values
+    /** make {\tt st} refer to a portion of the track. No values
 	are copied - an internal pointer in st is set to the specified
 	portion of the the track. After this, st behaves like a normal
 	track. Its first channel is the same as start_channel and its
@@ -253,7 +252,7 @@ public:
 		   const EST_String &start_chan_name,
 		   int nchans=EST_ALL);
 
-    /** make `st` refer to a portion of the track. No values
+    /** make {\tt st} refer to a portion of the track. No values
 	are copied - an internal pointer in st is set to the specified
 	portion of the the track. After this, st behaves like a normal
 	track. Its first channel is the same as start_channel and its
@@ -270,7 +269,7 @@ public:
 		   const EST_String &start_chan_name,
 		   const EST_String &end_chan_name);
 
-    /** make `st` refer to a portion of the track. (const version)
+    /** make {\tt st} refer to a portion of the track. (const version)
 	No values
 	are copied - an internal pointer in st is set to the specified
 	portion of the the track. After this, st behaves like a normal
@@ -289,7 +288,7 @@ public:
 	{ ((EST_Track *)this)->sub_track(st, start_frame, nframes, 
 					 start_chan, nchans); } 
 
-    /** Copy contiguous portion of track into `st`. Unlike the
+    /** Copy contiguous portion of track into {\tt st}. Unlike the
 	normal sub_track functions, this makes a completely new track.
 	values written into this will not affect the main track and it
 	can be resized.
@@ -307,21 +306,21 @@ public:
     void copy_sub_track_out( EST_Track &st, const EST_FVector& frame_times ) const;
     void copy_sub_track_out( EST_Track &st, const EST_IVector& frame_indices ) const;
 
-    /** copy channel `n` into pre-allocated buffer buf */
+    /** copy channel {\tt n} into pre-allocated buffer buf */
     void copy_channel_out(int n, float *buf, int offset=0, int num=EST_ALL)
 	const
 	{ p_values.copy_column(n, buf, offset, num); } 
 
-    /** copy channel `n` into EST_FVector */
+    /** copy channel {\tt n} into EST_FVector */
     void copy_channel_out(int n, EST_FVector &f, int offset=0, int num=EST_ALL)
 	const
 	{ p_values.copy_column(n, f, offset, num); } 
 
-    /** copy frame `n` into pre-allocated buffer buf */
+    /** copy frame {\tt n} into pre-allocated buffer buf */
     void copy_frame_out(int n, float *buf, int offset=0, int num=EST_ALL) 
 	const {p_values.copy_row(n, buf, offset, num); } 
 
-    /** copy frame `n` into EST_FVector */
+    /** copy frame {\tt n} into EST_FVector */
     void copy_frame_out(int n, EST_FVector &f, int offset=0, int num=EST_ALL)
         const {p_values.copy_row(n, f, offset, num); } 
 
@@ -353,7 +352,7 @@ public:
 	{ p_values.set_row(n, t, offset, num); }
 
     /** copy from into frame n of track */
-    void copy_frame_in(ssize_t i, 
+    void copy_frame_in(int i, 
 		   const EST_Track &from, int from_f, int from_offset=0, 
 		   int offset=0, int num=EST_ALL)
 	{ p_values.set_row(i, from.p_values, from_f, from_offset, offset, 
@@ -366,26 +365,26 @@ public:
 
     //@{
 
-    /** Return the position of channel `name` if it exists,
+    /** Return the position of channel {\tt name} if it exists,
 	otherwise return -1.
     */
     int channel_position(const char *name, int offset=0) const;
 
-    /** Return the position of channel `name` if it exists,
+    /** Return the position of channel {\tt name} if it exists,
 	otherwise return -1.
     */
     int channel_position(EST_String name, int offset=0) const
 	{ return  channel_position((const char *)name, offset); }
 
 
-    /** Returns true if the track has a channel named `name`, 
+    /** Returns true if the track has a channel named {\tt name}, 
 	otherwise  false.
     */
 
     bool has_channel(const char *name) const
-	{ return (long signed int) channel_position(name) >=0; }
+	{ return channel_position(name) >=0; }
 
-    /** Returns true if the track has a channel named `name`, 
+    /** Returns true if the track has a channel named {\tt name}, 
 	otherwise  false.
     */
     bool has_channel(EST_String name) const 
@@ -412,13 +411,13 @@ public:
     //@{
 
     /** return amplitude of frame i, channel c.*/
-    float &a(ssize_t i, int c=0);
-    float a(ssize_t i, int c=0) const;
+    float &a(int i, int c=0);
+    float a(int i, int c=0) const;
 
     /** return amplitude of frame i, channel c with no bounds
 	checking. */
-    float &a_no_check(ssize_t i, int c=0) { return p_values.a_no_check(i,c); }
-    float a_no_check(ssize_t i, int c=0) const {return p_values.a_no_check(i,c);}
+    float &a_no_check(int i, int c=0) { return p_values.a_no_check(i,c); }
+    float a_no_check(int i, int c=0) const {return p_values.a_no_check(i,c);}
 
     /** return amplitude of point i, in the channel named name plus
 	offset. If you have a track with say channels called F0 and
@@ -427,22 +426,22 @@ public:
 	be accessed as t.a(45, "cepstrum", 5);
      */
 
-    float &a(ssize_t i, const char *name, int offset=0);
+    float &a(int i, const char *name, int offset=0);
 
-    float  a(ssize_t i, const char *name, int offset=0) const
+    float  a(int i, const char *name, int offset=0) const
 	{ return ((EST_Track *)this)->a(i, name, offset); }
-    float &a(ssize_t i, EST_String name, int offset=0) 
+    float &a(int i, EST_String name, int offset=0) 
 	{ return a(i, (const char *)name, offset); }
-    float  a(ssize_t i, EST_String name, int offset=0) const
+    float  a(int i, EST_String name, int offset=0) const
 	{ return ((EST_Track *)this)->a(i, (const char *)name, offset); }
 
     /** return amplitude of time t, channel c. This can be used for
 	reading or writing to this point. By default the nearest frame
-	to this time is used. If `interp` is set to `it_linear`,
-    linear interpolation is performed between the two
+	to this time is used. If {\tt interp} is set to {\tt
+	it_linear}, linear interpolation is performed between the two
 	amplitudes of the two frames either side of the time point to
 	give an estimation of what the amplitude would have been at
-	time `t`.  If `interp` is set to `it_linear_nz`,
+	time {\tt t}.  If {\tt interp} is set to {\tt it_linear_nz},
 	interpolation is as above, unless the time requested is off
 	the end of a portion of track in which case the nearest
 	amplitude is returned.
@@ -453,11 +452,11 @@ public:
 
 
     /** return amplitude of frame i, channel c. */
-    float &operator() (ssize_t i, int c)       { return a(i,c); }	
+    float &operator() (int i, int c)       { return a(i,c); }	
     /** return amplitude of frame i, channel 0. */
-    float &operator() (ssize_t i)              { return a(i,0); }
-    float  operator() (ssize_t i, int c) const { return a(i,c); }	
-    float  operator() (ssize_t i) const        { return a(i,0); }	
+    float &operator() (int i)              { return a(i,0); }
+    float  operator() (int i, int c) const { return a(i,c); }	
+    float  operator() (int i) const        { return a(i,0); }	
   
     /** return amplitude of frame nearest time t, channel c. */
     float &operator() (float t, int c)       {return a(t,c); }
@@ -475,21 +474,21 @@ public:
     //@{
 
     /// return time position of frame i
-    float &t(ssize_t i=0)			   { return p_times[i]; }
-    float  t(ssize_t i=0) const                    { return p_times(i); } 
+    float &t(int i=0)			   { return p_times[i]; }
+    float  t(int i=0) const                    { return p_times(i); } 
 
     /// return time of frame i in milli-seconds.
-    float ms_t(ssize_t i) const		   { return p_times(i) * 1000.0; }
+    float ms_t(int i) const		   { return p_times(i) * 1000.0; }
 
-    /** set frame times to regular intervals of time `t`.
-	The `start` parameter specifies the integer multiple of `t` at
+    /** set frame times to regular intervals of time {\tt t}.
+	The {\tt start} parameter specifies the integer multiple of {\tt t} at
 	which to start.  For example, setting this to 0 will start at time
-	0.0 (The default means the first time value = `t`
+	0.0 (The default means the first time value = {\tt t}
      */
     void fill_time( float t, int start=1 );
 
-    /** set frame times to regular intervals of time `t`.
-	The `start` parameter specifies the first time value.
+    /** set frame times to regular intervals of time {\tt t}.
+	The {\tt start} parameter specifies the first time value.
      */
     void fill_time( float t, float start );
 
@@ -497,7 +496,7 @@ public:
      */
     void fill_time( const EST_Track &t );
 
-    /** fill all amplitudes with value `v` */
+    /** fill all amplitudes with value {\tt v} */
     void fill(float v) { p_values.fill(v); }
 
     /** resample track at this frame shift, specified in seconds. 
@@ -548,17 +547,17 @@ public:
 
     //@{
 
-    EST_Val &aux(ssize_t i, int c);
-    EST_Val &aux(ssize_t i, int c) const;
+    EST_Val &aux(int i, int c);
+    EST_Val &aux(int i, int c) const;
 
-    EST_Val &aux(ssize_t i, const char *name);
-    EST_Val aux(ssize_t i, const char *name) const
+    EST_Val &aux(int i, const char *name);
+    EST_Val aux(int i, const char *name) const
 	{ return ((EST_Track *)this)->aux(i, name); }
 
-    EST_Val &aux(ssize_t i, EST_String name) 
+    EST_Val &aux(int i, EST_String name) 
 	{ return aux(i, (const char *)name); }
 
-    EST_Val aux(ssize_t i, EST_String name) const
+    EST_Val aux(int i, EST_String name) const
 	{ return ((EST_Track *)this)->aux(i, (const char *)name); }
 
     //@}
@@ -568,7 +567,7 @@ public:
 
     //@{
 
-    /** Load a file called `name` into the track. 
+    /** Load a file called {\tt name} into the track. 
 	The load function attempts to
 	automatically determine which file type is being loaded from the
 	file's header. If no header is found, the function assumes the
@@ -576,12 +575,12 @@ public:
 	representing frames and columns channels. In this case, the
 	frame shift must be specified as an argument to this function.
         For those file formats which don't contain provision for specifying
-	an initial time (e.g. HTK, or ascii...), the `startt` parameter
+	an initial time (e.g. HTK, or ascii...), the {\tt startt} parameter
 	may be specified.
     */
     EST_read_status load(const EST_String name, float ishift = 0.0, float startt = 0.0);
 
-    /** Load character data from an already opened tokenstream `ts` 
+    /** Load character data from an already opened tokenstream {\tt ts} 
 	into the track. 
 	The load function attempts to
 	automatically determine which file type is being loaded from the
@@ -590,29 +589,29 @@ public:
 	representing frames and columns channels. In this case, the
 	frame shift must be specified as an argument to this function
         For those file formats which don't contain provision for specifying
-	an initial time (e.g. HTK, or ascii...), the `startt` parameter
+	an initial time (e.g. HTK, or ascii...), the {\tt startt} parameter
 	may be specified.
     */
     EST_read_status load(EST_TokenStream &ts, float ishift = 0.0, float startt = 0.0);
 
-    /** Load a file called `name` of format `type` 
+    /** Load a file called {\tt name} of format {\tt type} 
 	into the track. If no header is found, the function assumes the
 	file is ascii data, with a fixed frame shift, arranged with rows
 	representing frames and columns channels. In this case, the
 	frame shift must be specified as an argument to this function
         For those file formats which don't contain provision for specifying
-	an initial time (e.g. HTK, or ascii...), the `startt` parameter
+	an initial time (e.g. HTK, or ascii...), the {\tt startt} parameter
 	may be specified.
     */
     EST_read_status load(const EST_String name, const EST_String type, 
 			 float ishift = 0.0, float startt = 0.0 );
 
-    /** Save the track to a file `name` of format `type`. */
+    /** Save the track to a file {\tt name} of format {\tt type}. */
     EST_write_status save(const EST_String name, 
 			  const EST_String EST_filetype = "");
 
-    /** Save the track to a already opened file pointer`FP` 
-	and write a file of format `type`. */
+    /** Save the track to a already opened file pointer{\tt FP} 
+	and write a file of format {\tt type}. */
     EST_write_status save(FILE *fp,
 			  const EST_String EST_filetype = "");
 
@@ -625,33 +624,33 @@ public:
     int empty() const;
     
     /// set frame i to be a break
-    void set_break(ssize_t i);
+    void set_break(int i);
     /// set frame i to be a value
-    void set_value(ssize_t i);
+    void set_value(int i);
     /// return true if frame i is a value
-    int val(ssize_t i) const;
+    int val(int i) const;
     /// return true if frame i is a break
-    int track_break(ssize_t i) const { return (p_is_val(i)); }
+    int track_break(int i) const { return (p_is_val(i)); }
 
     /** starting at frame i, return the frame index of the first
 	value frame before i. If frame i is a value, return i */
-    ssize_t prev_non_break(ssize_t i) const;
+    int prev_non_break(int i) const;
 
     /** starting at frame i, return the frame index of the first
 	value frame after i. If frame i is a value, return i */
-    ssize_t next_non_break(ssize_t i) const;
+    int next_non_break(int i) const;
 
     /// return the frame index nearest time t
-    ssize_t index(float t) const;		
+    int index(float t) const;		
 
     /// return the frame index before time t
-    ssize_t index_below(float x) const;
+    int index_below(float x) const;
 
     /// return number of frames in track
-    ssize_t num_frames() const {return p_values.num_rows();}
+    int num_frames() const {return p_values.num_rows();}
 
     /// return number of frames in track
-    ssize_t length() const { return num_frames(); }
+    int length() const { return num_frames(); }
 
     /// return number of channels in track
     int num_channels() const {return p_values.num_columns();}
@@ -682,10 +681,10 @@ public:
     EST_Track& operator = (const EST_Track& a);
     EST_Track& operator+=(const EST_Track &a); // add to existing track
     EST_Track& operator|=(const EST_Track &a); // add to existing track in parallel
-    friend std::ostream& operator << (std::ostream& s, const EST_Track &tr);
+    friend ostream& operator << (ostream& s, const EST_Track &tr);
 
     // Default constructor
-    EST_Track(ssize_t num_frames, EST_TrackMap &map);
+    EST_Track(int num_frames, EST_TrackMap &map);
 
     // assign a known description to a track
     void assign_map(EST_TrackMap::P map);
@@ -702,8 +701,8 @@ public:
 
 
     // return amplitude of point i, channel type c (plus offset)
-    float &a(ssize_t i, EST_ChannelType c, int offset=0);
-    float  a(ssize_t i, EST_ChannelType c, int offset=0) const
+    float &a(int i, EST_ChannelType c, int offset=0);
+    float  a(int i, EST_ChannelType c, int offset=0) const
 	{ return ((EST_Track *)this)->a(i,c, offset); }
 
     // return amplitude at time t, channel type c
@@ -711,8 +710,8 @@ public:
     float  a(float t, EST_ChannelType c, EST_InterpType interp=it_nearest) const
 	{ return ((EST_Track *)this)->a(t, c, interp); }
 
-    float &operator() (ssize_t i, EST_ChannelType c)       { return a(i,c); }
-    float  operator() (ssize_t i, EST_ChannelType c) const { return a(i,c); }
+    float &operator() (int i, EST_ChannelType c)       { return a(i,c); }
+    float  operator() (int i, EST_ChannelType c) const { return a(i,c); }
 
     float &t_offset()			   { return p_t_offset; }
     float t_offset() const		   { return p_t_offset; }
@@ -728,7 +727,7 @@ public:
     const EST_String aux_channel_name(int channel) const 
 	{ return p_aux_names(channel);}
 
-    void resize(ssize_t num_frames, EST_TrackMap &map);
+    void resize(int num_frames, EST_TrackMap &map);
 
     EST_TrackFileType file_type() const {return (EST_TrackFileType)f_Int("file_type",0);}
 
@@ -737,7 +736,7 @@ public:
 
 
     bool has_channel(EST_ChannelType type) const 
-	{ long signed int cp = (long signed int) channel_position(type);
+	{ int cp = channel_position(type);
 	return cp>=0; }
 
     // Frame iteration support
@@ -745,7 +744,7 @@ public:
 protected:
   class IPointer_f { 
   public:
-    EST_Track *frame; ssize_t i; 
+    EST_Track *frame; int i; 
     IPointer_f();
     IPointer_f(const IPointer_f &p);
     ~IPointer_f();

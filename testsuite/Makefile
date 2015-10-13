@@ -61,7 +61,7 @@ TEST_SCRIPTS = ch_wave ch_track viterbi wagon tilt lpc
 #TEST_MODULES = string list hash pathname named_enum track_map token
 TEST_MODULES = string hash pathname \
 	track token complex list kvl \
-	handle named_enum deq ling feature matrixb
+	handle named_enum deq ling feature
 TMP_OMITTED = track_map error
 
 # These don't compile on some systems (due to compiler problems)
@@ -78,8 +78,6 @@ TEST_OPTIMISE=3
 ALL = build_test_programs
 ALL_EXECS = $(TEST_MODULES:%=%_example) $(TEST_MODULES:%=%_regression)
 LOCAL_CLEAN = tmp
-
-LOCAL_DISTCLEAN = *.out .test_out
 
 include $(TOP)/config/test_make_rules
 

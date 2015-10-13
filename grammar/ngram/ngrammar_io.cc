@@ -49,10 +49,6 @@
 #include "EST_Ngrammar.h"
 #include "EST_Token.h"
 #include "EST_cutils.h"
-#include "EST_File.h"
-
-
-using namespace std;
 
 EST_read_status
 load_ngram_htk_ascii(const EST_String filename, EST_Ngrammar &n)
@@ -77,8 +73,7 @@ load_ngram_arpa(const EST_String filename, EST_Ngrammar &n, const EST_StrList &v
     EST_TokenStream ts;
     EST_String s;
     int i,j,k, order=0;
-    //double weight;
-    /*double occur;*/
+    double occur,weight;
     int this_num,this_order;
 
     if (ts.open(filename) == -1)
@@ -176,14 +171,13 @@ load_ngram_arpa(const EST_String filename, EST_Ngrammar &n, const EST_StrList &v
 		return misc_read_error;
 	    }
 
-	    /*occur = atof(ts.get().string()); unused*/
-        ts.get().string();
+	    occur = atof(ts.get().string());
+
 
 	    // can't for backoff grammars, need to set probs directly
 	    
 	    cerr << "ooooooooops" << endl;
 	    return wrong_format;
-        /* BEGIN COMMENT: This code is unreachable
 	    //n.accumulate(window,occur);
 
 	    // backoff weight ?
@@ -200,8 +194,6 @@ load_ngram_arpa(const EST_String filename, EST_Ngrammar &n, const EST_StrList &v
 		ts.close();
 		return misc_read_error;
 	    }
-        END COMMENT: This code is unreachable */
-
 	}
 	
     } // loop through orders
@@ -300,18 +292,12 @@ load_ngram_cstr_bin(const EST_String filename, EST_Ngrammar &n)
     
     if ((ifd=fopen(filename,"rb")) == NULL)
 	return misc_read_error;
-    if (fread(&magic,sizeof(int),1,ifd) != 1)
-    {
-        cerr << "Could not read integer from " << filename << endl;
-        fclose(ifd);
-        return misc_read_error;
-    }
+    fread(&magic,sizeof(int),1,ifd);
+    
     if (SWAPINT(magic) == EST_NGRAMBIN_MAGIC)
 	swap = TRUE;
-    else if (magic != EST_NGRAMBIN_MAGIC) {
-		fclose(ifd);
-        return wrong_format;
-    }
+    else if (magic != EST_NGRAMBIN_MAGIC)
+	return wrong_format;
     if (ts.open(ifd, FALSE) == -1)
 	return misc_read_error;
     
@@ -344,7 +330,7 @@ load_ngram_cstr_bin(const EST_String filename, EST_Ngrammar &n)
     
     // Need to get to the position one after the newline and
     // who knows what TokenStream has already read,
-    EST_fseek(ifd,(long)(ts.peek().filepos()+5),SEEK_SET);
+    fseek(ifd,(long)(ts.peek().filepos()+5),SEEK_SET);
     
     if(!n.init(order,EST_Ngrammar::dense,vocab,pred_vocab))
     {
@@ -355,21 +341,20 @@ load_ngram_cstr_bin(const EST_String filename, EST_Ngrammar &n)
     
     EST_StrVector window(order);
     
-    freq_data_start = EST_ftell(ifd);
-    EST_fseek(ifd,0,SEEK_END);
-    freq_data_end = EST_ftell(ifd);
+    freq_data_start = ftell(ifd);
+    fseek(ifd,0,SEEK_END);
+    freq_data_end = ftell(ifd);
     num_entries = (freq_data_end-freq_data_start)/sizeof(double);
     double *dd = new double[num_entries];
     
     // Go back to start of data
-    EST_fseek(ifd,freq_data_start,SEEK_SET);
+    fseek(ifd,freq_data_start,SEEK_SET);
     
     if (fread(dd,sizeof(double),num_entries,ifd) != (unsigned)num_entries)
     {
 	cerr << "EST_Ngrammar::load_ngram_cstr_bin format does not have expected number of entries" << endl;
 	ts.close();
 	fclose(ifd);
-	delete[] dd;
 	return misc_read_error;
     }
     if (swap)
@@ -382,7 +367,6 @@ load_ngram_cstr_bin(const EST_String filename, EST_Ngrammar &n)
 	    cerr << "EST_Ngrammar::load_ngram_cstr_bin unexpected end of frequency data" << endl;
 	    ts.close();
 	    fclose(ifd);
-        delete[] dd;
 	    return misc_read_error;	
 	}
 	for (k=n.p_states[i].pdf().item_start();
@@ -672,8 +656,8 @@ save_ngram_arpa(const EST_String filename, EST_Ngrammar &n)
     // ARPA MIT-LL format - see HTK manual !!
     
     ostream *ost;
-    int i,o;
-    /*int num_n;*/
+    int i,num_n,o;
+    
     if (filename == "-")
 	ost = &cout;
     else
@@ -687,7 +671,7 @@ save_ngram_arpa(const EST_String filename, EST_Ngrammar &n)
     //*ost << *(n.vocab) << endl;
     
     // count number of ngrams
-    /*num_n = (int)n.samples();*/
+    num_n = (int)n.samples();
     *ost << "\\data\\" << endl;
     
     double *count = new double;
@@ -738,8 +722,9 @@ save_ngram_arpa(const EST_String filename, EST_Ngrammar &n)
     
     *ost << "\\end\\" << endl;
     
-    if (ost != &cout) delete ost;
-    delete count;
+    if (ost != &cout)
+	delete ost;
+    
     return write_ok;
 }
 

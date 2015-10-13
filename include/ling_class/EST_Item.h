@@ -50,26 +50,24 @@
 
 typedef EST_Val (*EST_Item_featfunc)(EST_Item *s);
 extern val_type val_type_featfunc;
-EST_Item_featfunc featfunc(const EST_Val &v);
+const EST_Item_featfunc featfunc(const EST_Val &v);
 EST_Val est_val(const EST_Item_featfunc f);
 
 class EST_Relation;
 class ling_class_init;
 
 
-/** @class EST_Item
-    @ingroup estlingclasses
-
-A class for containing individual linguistic objects such as
+/** A class for containing individual linguistic objects such as
 words or phones.
 
 These contain two types of information. This first is specific to the
-\ref EST_Relation we are viewing this ling item from, the second part
+\Ref{EST_Relation} we are viewing this ling item from, the second part
 consists of a set of features.  These features may be shared by
-instances of this ling item in different EST_Relation
-within the same EST_Utterance.
+instances of this ling item in different <link
+linkend="est-relation">EST_Relation</link> within the same <link
+linkend="est-utterance">EST_Utterances</link>
 
-The shared part of an EST_Item is
+The shared part of an <link linkend="est-item">EST_Item</link> is
 represented by the class EST_Item_Content.  It should not normally be
 accessed by the general users as reverse links from the contents to
 each of the EST_Items it is part of are held ensure the
@@ -80,6 +78,7 @@ We believe this structure is the most efficient for the most natural
 use we envisage.  Traversal of the items ....
 
 */
+
 class EST_Item 
 {
   private:
@@ -109,7 +108,7 @@ protected:
 
   public:
     /**@name Constructor Functions */
-    ///@{
+    //@{
     /// Default constructor
     EST_Item();
     /// Copy constructor only makes reference to contents 
@@ -120,111 +119,106 @@ protected:
     EST_Item(EST_Relation *rel, EST_Item *si);
     /// Deletes it and references to it in its contents
     ~EST_Item();
-    ///@}
+    //@}
 
 
     /**@name Feature access functions. 
        These functions are wrap-around functions to the basic access
-       functions in the \ref EST_Features  class.  In all these
-       functions, if the optional argument `m` is set to 1, an
+       functions in the \Ref{EST_Features} class.  In all these
+       functions, if the optional argument <parameter>m} is set to 1, an
        error is thrown if the feature does not exist*/
 
-    ///@{
-    /** return the value of the feature `name` 
+    //@{
+    /** return the value of the feature <parameter>name</parameter> 
 	cast as a float */
-    float F(const EST_String &name) const {return f(name).Float();}
+    const float F(const EST_String &name) const {return f(name).Float();}
 
-    /** return the value of the feature `name` cast 
-	as a float, returning `def` if not found.*/
-    float F(const EST_String &name,float def) const
+    /** return the value of the feature <parameter>name</parameter> cast 
+	as a float, returning <parameter>def</parameter> if not found.*/
+    const float F(const EST_String &name,float def) const 
 	{return f(name,def).Float();}
 
-    /** return the value of the feature `name` 
+    /** return the value of the feature <parameter>name</parameter> 
 	cast as a EST_String */
     const EST_String S(const EST_String &name) const {return f(name).string();}
 
-    /** return the value of the feature `name` 
+    /** return the value of the feature <parameter>name</parameter> 
 	cast as a EST_String,
-	returning `def` if not found.
+	returning <parameter>def</parameter> if not found.
     */
     const EST_String S(const EST_String &name, const EST_String &def) const
        {return f(name, def).string();}
 
-    /** return the value of the feature `name` 
+    /** return the value of the feature <parameter>name</parameter> 
 	cast as a int */
-    int I(const EST_String &name) const {return f(name).Int();}
+    const int I(const EST_String &name) const {return f(name).Int();}
 
-    /** return the value of the feature `name` cast as a int 
-	returning `def` if not found.*/
-    int I(const EST_String &name, int def) const
+    /** return the value of the feature <parameter>name</parameter> cast as a int 
+	returning <parameter>def</parameter> if not found.*/
+    const int I(const EST_String &name, int def) const
        {return f(name, def).Int();}
 
-    /** return the value of the feature `name` 
+    /** return the value of the feature <parameter>name</parameter> 
 	cast as a EST_Features */
     EST_Features &A(const EST_String &name) const {return *feats(f(name));}
 
-    /** return the value of the feature `name` 
+    /** return the value of the feature <parameter>name</parameter> 
 	cast as a EST_Features,
-	returning `def` if not found.
+	returning <parameter>def</parameter> if not found.
     */
     EST_Features &A(const EST_String &name,EST_Features &def) const
        {EST_Features *ff = new EST_Features(def);
         return *feats(f(name, est_val(ff)));}
-    ///@}
+    //@}
 
     /**@name Feature setting functions.
        A separate function is provided for each permissible value type
     */
-    ///@{
-    #if (SSIZE_MAX != INT_MAX)
-    /** set feature `name` to `val` */
+    //@{
+    /** set feature <parameter>name</parameter> to <parameter>val</parameter> */
     void set(const EST_String &name, int ival)
          { EST_Val pv(ival);features().set_path(name, pv); }
-	#endif
-    /** set feature `name` to `val` */
-    void set(const EST_String &name, ssize_t ival)
-         { EST_Val pv(ival);features().set_path(name, pv); }
 
-    /** set feature `name` to `val` */
+    /** set feature <parameter>name</parameter> to <parameter>val</parameter> */
     void set(const EST_String &name, float fval)
          { EST_Val pv(fval); features().set_path(name,pv); }
 
-    /** set feature `name` to `val` */
+    /** set feature <parameter>name</parameter> to <parameter>val</parameter> */
     void set(const EST_String &name, double fval)
          { EST_Val pv((float)fval);features().set_path(name,pv); }
 
-    /** set feature `name` to `val` */
+    /** set feature <parameter>name</parameter> to <parameter>val</parameter> */
     void set(const EST_String &name, const EST_String &sval)
          { EST_Val pv(sval);features().set_path(name,pv); }
 
-    /** set feature `name` to `val` */
+    /** set feature <parameter>name</parameter> to <parameter>val</parameter> */
     void set(const EST_String &name, const char *cval)
          { EST_Val pv(cval);features().set_path(name,pv); }
 
-    /** set feature `name` to `val`, 
+    /** set feature <parameter>name</parameter> to <parameter>val</parameter>, 
 	a function registered in
         the feature function list. */
     void set_function(const EST_String &name, const EST_String &funcname)
  	 { features().set_function(name,funcname); }
 
-    /** set feature `name` to `f`, 
+    /** set feature <parameter>name</parameter> to <parameter>f</parameter>, 
 	a set of features, which is copied into the object.
     */
     void set(const EST_String &name, EST_Features &f)
          { EST_Features *ff = new EST_Features(f);
 	   features().set_path(name, est_val(ff)); }
 
-    /** set feature `name` to `f`, 
+    /** set feature <parameter>name</parameter> to <parameter>f</parameter>, 
 	whose type is EST_Val.
     */
     void set_val(const EST_String &name, const EST_Val &sval)
          { features().set_path(name,sval); }
-    ///@}
+    //@}
 
     /**@name Utility feature functions
     */
-    ///@{
-    /** remove feature `name` */
+    //@{
+    /** remove feature <parameter>name</parameter> */
     void f_remove(const EST_String &name)
     { features().remove(name); }
     
@@ -238,7 +232,7 @@ protected:
 
     // Number of items (including this) until no next item.
     int length() const;
-    ///@}
+    //@}
 
     // get contents from item
     EST_Item_Content *contents() const { return (this == 0) ? 0 : p_contents;}
@@ -310,7 +304,7 @@ protected:
     }
 
     /**@name Cross relational access */
-    ///@{
+    //@{
 
     /// View item from another relation (const char *) method
     EST_Item *as_relation(const char *relname) const
@@ -333,7 +327,7 @@ protected:
     /// True if li is the same item ignoring its relation viewpoint
       int same_item(const EST_Item *li) const
       { return contents() && li->contents() && (contents() == li->contents()); }
-    ///@}
+    //@}
 
     // The remaining functions should not be accessed, they are should be
     // regarded as private member functions
@@ -441,7 +435,7 @@ void evaluate(EST_Item *a,EST_Features &f);
 void EST_register_feature_function_package(const char *name, void (*init_fn)(EST_FeatureFunctionPackage &p));
 
 void register_featfunc(const EST_String &name, const EST_Item_featfunc func);
-EST_Item_featfunc get_featfunc(const EST_String &name,int must=0);
+const EST_Item_featfunc get_featfunc(const EST_String &name,int must=0);
 EST_String get_featname(const EST_Item_featfunc func);
 
 #define	EST_register_feature_functions(PACKAGE) \

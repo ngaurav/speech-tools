@@ -40,14 +40,12 @@
  /*                                                                       */
  /*************************************************************************/
 
-/** \file
- *  \typedef EST_Litem
- */
-
 #ifndef __Tlist_H__
 #define __Tlist_H__
 
 #include <iostream>
+
+using namespace std;
 
 #include "EST_common.h"
 #include "EST_UList.h"
@@ -92,25 +90,21 @@ public:
 
 // pretty name
 
-/** \typedef EST_Litem
- *  \brief A pretty name for EST_UItem
- *  \see EST_UItem
- */
 typedef EST_UItem EST_Litem;
 
-/** \class EST_TList
- *  @ingroup containerclasses
+/** 
 
 A Template doubly linked list class. This class contains doubly linked
-lists of a type denoted by `T`. A pointer of type EST_Litem
+lists of a type denoted by {\tt T}. A pointer of type \Ref{EST_Litem}
 is used to access items in the list. The class supports a variety of
 ways of adding, removing and accessing items in the list. For examples
-of how to operate lists, see \ref list_example.
+of how to operate lists, see \Ref{list_example}.
 
 Iteration through the list is performed using a pointer of type
-EST_Litem. See \ref Iteration for example code.
+\Ref{EST_Litem}. See \Ref{Iteration} for example code.
 
 */
+
 template <class T> class EST_TList : public EST_UList 
 {
   private:
@@ -120,18 +114,18 @@ template <class T> class EST_TList : public EST_UList
     static void free_item(EST_UItem *item);
 
   /**@name Constructor functions */
-  ///@{
+  //@{
   /// default constructor
     EST_TList() { };
   /// copy constructor
     EST_TList(const EST_TList<T> &l);
     ~ EST_TList() { clear_and_free(free_item); }
-  ///@}
+  //@}
 
   /**@name Access functions for reading and writing items.
-    See \ref EST_TList_Accessing for examples.*/
+    See \Ref{EST_TList_Accessing} for examples.*/
 
-  ///@{
+  //@{
 
   /** return the value associated with the EST_Litem pointer. This
     has the same functionality as the overloaded () operator.
@@ -163,20 +157,21 @@ template <class T> class EST_TList : public EST_UList
     T &last()					
 	    { return item(tail()); };
 
-  /// return const reference to item in list pointed to by `ptr`
+  /// return const reference to item in list pointed to by {\tt ptr}
     const T  &operator () (const EST_Litem *ptr) const
 	    { return item(ptr); };
-  /// return non-const reference to item in list pointed to by `ptr`
+  /// return non-const reference to item in list pointed to by {\tt ptr}
     T  &operator () (const EST_Litem *ptr)
  	    { return item(ptr); };
 
-  ///@}
+  //@}
 
   /**@name Removing items in a list. 
+    more.
    */
-  ///@{
-  /** remove item pointed to by `ptr`, return pointer to previous item.
- See \ref Removing for example code.*/
+  //@{
+  /** remove item pointed to by {\tt ptr}, return pointer to previous item.
+ See \Ref{Removing} for example code.*/
     EST_Litem *remove(EST_Litem *ptr)
 	    { return EST_UList::remove(ptr, free_item); };
 
@@ -184,14 +179,14 @@ template <class T> class EST_TList : public EST_UList
     EST_Litem *remove_nth(int n)
 	    { return EST_UList::remove(n, free_item); };
 
-  ///@}
+  //@}
 
 
   /**@name Adding items to a list. 
     In all cases, a complete copy of
-    the item is made and added to the list. See \ref Addition  for examples.
+    the item is made and added to the list. See \Ref{Addition} for examples.
    */
-  ///@{
+  //@{
   /// add item onto end of list
     void append(const T &item)
 	    { EST_UList::append(EST_TItem<T>::make(item)); };
@@ -199,22 +194,22 @@ template <class T> class EST_TList : public EST_UList
     void prepend(const T &item)
 	    { EST_UList::prepend(EST_TItem<T>::make(item)); };
 
-  /** add `item` after position given by `ptr`, return pointer
+  /** add {\tt item} after position given by {\tt ptr}, return pointer
     to added item. */
 
     EST_Litem *insert_after(EST_Litem *ptr, const T &item)
 	    { return EST_UList::insert_after(ptr, EST_TItem<T>::make(item)); };
 
-  /** add `item` before position given by `ptr`, return
+  /** add {\tt item} before position given by {\tt ptr}, return
       pointer to added item. */
 
     EST_Litem *insert_before(EST_Litem *ptr, const T &item)
 	    { return EST_UList::insert_before(ptr, EST_TItem<T>::make(item)); };
 
-  ///@}
+  //@}
 
   /**@name Exchange */
-  ///@{
+  //@{
   /// exchange 1
     void exchange(EST_Litem *a, EST_Litem *b)
 	    { EST_UList::exchange(a, b); };
@@ -223,17 +218,17 @@ template <class T> class EST_TList : public EST_UList
 	    { EST_UList::exchange(i,j); };
   /// exchange 3    
    static void exchange_contents(EST_Litem *a, EST_Litem *b);
-  ///@}
+  //@}
 
   /**@name General functions */
-  ///@{
+  //@{
   /// make full copy of list
       EST_TList<T> &operator=(const EST_TList<T> &a); 
   /// Add list onto end of existing list
     EST_TList<T> &operator +=(const EST_TList<T> &a);
 
   /// print list
-    friend std::ostream& operator << (std::ostream &st, EST_TList<T> const &list) {
+    friend ostream& operator << (ostream &st, EST_TList<T> const &list) {
         EST_Litem *ptr; 
         for (ptr = list.head(); ptr != 0; ptr = ptr->next()) 
             st << list.item(ptr) << " "; 
@@ -243,16 +238,12 @@ template <class T> class EST_TList : public EST_UList
   /// remove all items in list
     void clear(void) 
 	    { clear_and_free(free_item); };
-  ///@}
+  //@}
 
   // Iteration support
 
 protected:
-  class IPointer {
-    public:
-    EST_Litem *p;
-    IPointer() {p=NULL;}
-  };
+  struct IPointer {  EST_Litem *p; };
 
   void point_to_first(IPointer &ip) const { ip.p = head(); }
   void move_pointer_forwards(IPointer &ip) const { ip.p = ip.p->next(); }
@@ -274,12 +265,6 @@ template<class T>
 bool operator==(const EST_TList<T> &a, const EST_TList<T> &b)
 { 
     return EST_UList::operator_eq(a, b, EST_TSortable<T>::items_eq); 
-}
-
-template<class T> 
-bool operator!=(const EST_TList<T> &a, const EST_TList<T> &b)
-{ 
-    return !(a==b); 
 }
 
 template<class T> 

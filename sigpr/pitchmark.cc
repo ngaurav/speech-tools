@@ -50,7 +50,6 @@ written in matlab.
 #include "EST_wave_aux.h"
 #include "EST_track_aux.h"
 
-using namespace std;
 
 void delta(EST_Wave &tr, EST_Wave &d, int regression_length);
 
@@ -264,7 +263,7 @@ void pm_to_f0(EST_Track &pm, EST_Track &f0)
     f0 = pm;
     f0.resize(EST_ALL, 1);
 
-    for (ssize_t i = 0; i < f0.num_frames(); ++i)
+    for (int i = 0; i < f0.num_frames(); ++i)
     {
 	f0.a(i, 0) = 1.0 / (f0.t(i) - prev_pm);
 	prev_pm = f0.t(i);
@@ -273,10 +272,10 @@ void pm_to_f0(EST_Track &pm, EST_Track &f0)
 
 void pm_to_f0(EST_Track &pm, EST_Track &fz, float shift)
 {
-    ssize_t i;
+    int i;
     float period;
 
-    fz.resize((ssize_t)(pm.end()/shift), 1);
+    fz.resize((int)(pm.end()/shift), 1);
     fz.fill_time(shift);
 
     for (i = 0; i < fz.num_frames() -1 ; ++i)

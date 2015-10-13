@@ -44,11 +44,9 @@
 #include "EST_math.h"
 #include <time.h>
 
-using namespace std;
-
 int matrix_max(const EST_IMatrix &a)
 {
-    ssize_t i, j;
+    int i, j;
     int v = INT_MIN;
     
     for (i = 0; i < a.num_rows(); ++i)

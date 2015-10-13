@@ -93,8 +93,6 @@ Cambridge, MA 02138
 #include "winsock2.h"
 #endif
 
-using namespace std;
-
 static int restricted_function_call(LISP l);
 static long repl(struct repl_hooks *h);
 static void gc_mark_and_sweep(void);
@@ -135,8 +133,8 @@ LISP restricted = NIL;
 LISP truth = NIL;
 LISP eof_val = NIL;
 LISP sym_errobj = NIL;
-static LISP sym_quote = NIL;
-static LISP sym_dot = NIL;
+LISP sym_quote = NIL;
+LISP sym_dot = NIL;
 LISP unbound_marker = NIL;
 LISP *obarray;
 long obarray_dim = 100;
@@ -160,9 +158,11 @@ static const char *user_te_readm = "";
 LISP (*user_readm)(int, struct gen_readio *) = NULL;
 LISP (*user_readt)(char *,long, int *) = NULL;
 void (*fatal_exit_hook)(void) = NULL;
+#ifdef THINK_C
+int ipoll_counter = 0;
+#endif
 FILE *fwarn=NULL;
 int siod_interactive = 1;
-static void err(const char *message, LISP x, const char *s) EST_NORETURN;
 
 extern "C" {
 int el_pos = -1;  // actually used by readline 
@@ -182,7 +182,12 @@ int num_dead_pointers = 0;
 static LISP set_restricted(LISP l);
 
 char *stack_limit_ptr = NULL;
-long stack_size = 500000;
+long stack_size = 
+#ifdef THINK_C
+  10000;
+#else
+  500000;
+#endif
 
 void NNEWCELL(LISP *_into,long _type)
 {if NULLP(freelist)               
@@ -413,7 +418,7 @@ long repl_c_string(char *str,
  else
    return(2);}
 
-#ifdef __unix__
+#ifdef unix
 #include <sys/types.h>
 #include <sys/times.h>
 double myruntime(void)
@@ -424,7 +429,7 @@ double myruntime(void)
  total += b.tms_stime;
  return(total / 60.0);}
 #else
-#if defined(WIN32) | defined(VMS)
+#if defined(THINK_C) | defined(WIN32) | defined(VMS)
 #ifndef CLOCKS_PER_SEC
 #define CLOCKS_PER_SEC CLK_TCK
 #endif
@@ -570,7 +575,7 @@ static long repl(struct repl_hooks *h)
 void set_fatal_exit_hook(void (*fcn)(void))
 {fatal_exit_hook = fcn;}
 
-static void err(const char *message, LISP x, const char *s)
+static LISP err(const char *message, LISP x, const char *s)
 {
     nointerrupt = 1;
     if NNULLP(x) 
@@ -593,35 +598,35 @@ static void err(const char *message, LISP x, const char *s)
     }
 
     if (show_backtrace == 1)
-	  display_backtrace(NIL);
+	display_backtrace(NIL);
     
     if (errjmp_ok == 1) {setvar(sym_errobj,x,NIL); longjmp(*est_errjmp,1);}
     close_open_files();  /* can give clue to where error is */
     fprintf(stderr,"%s: fatal error exiting.\n",siod_prog_name);
-    if (fatal_exit_hook) {
-	  (*fatal_exit_hook)();
-      
-    }
-    exit(1);
+    if (fatal_exit_hook)
+	(*fatal_exit_hook)();
+    else
+	exit(1);
+    return(NIL);
 }
 
-void err(const char *message, LISP x)
+LISP err(const char *message, LISP x)
 {
-  err(message, x, NULL);
+  return err(message, x, NULL);
 }
 
-void err(const char *message, const char *x)
+LISP err(const char *message, const char *x)
 {
-  err(message, NULL, x);
+  return err(message, NULL, x);
 }
 
-void errswitch(void)
-{err("BUG. Reached impossible case",NIL);}
+LISP errswitch(void)
+{return(err("BUG. Reached impossible case",NIL));}
 
 void err_stack(char *ptr)
      /* The user could be given an option to continue here */
 {(void)ptr;
- err("the currently assigned stack limit has been exceeded",NIL);}
+ err("the currently assigned stack limit has been exceded",NIL);}
 
 LISP stack_limit(LISP amount,LISP silent)
 {if NNULLP(amount)
@@ -1105,16 +1110,16 @@ void gc_for_newcell(void)
 static void gc_mark_and_sweep(void)
 {LISP stack_end;
  gc_ms_stats_start();
- if (setjmp(save_regs_gc_mark)) {
-     fprintf(stderr, "[GC mark and sweep: setjmp failed: Aborting GC collection]\n");
-     gc_ms_stats_end();
-     return;
- }
+ setjmp(save_regs_gc_mark);
  mark_locations((LISP *) save_regs_gc_mark,
                 (LISP *) (((char *) save_regs_gc_mark) + sizeof(save_regs_gc_mark)));
  mark_protected_registers();
  mark_locations((LISP *) stack_start_ptr,
 		(LISP *) &stack_end);
+#ifdef THINK_C
+ mark_locations((LISP *) ((char *) stack_start_ptr + 2),
+		(LISP *) ((char *) &stack_end + 2));
+#endif
  gc_sweep();
  gc_ms_stats_end();}
 
@@ -1168,7 +1173,7 @@ void gc_mark(LISP ptr)
     default:
       p = get_user_type_hooks(TYPE(ptr));
       if (p->gc_mark)
-	(*p->gc_mark)(ptr);}}
+	ptr = (*p->gc_mark)(ptr);}}
 
 static void mark_protected_registers(void)
 {struct gc_protected *reg;
@@ -1671,7 +1676,7 @@ static LISP lreadr(struct gen_readio *f)
     if (strchr("()'`,;\"",c) || strchr(user_te_readm,c))
       {UNGETC_FCN(c,f);return(lreadtk(j));}
     *p++ = c;}
- err("symbol larger than maxsize (can you use a string instead?)",NIL);}
+ return(err("symbol larger than maxsize (can you use a string instead?)",NIL));}
 
 #if 0
 LISP lreadparen(struct gen_readio *f)
@@ -1847,9 +1852,9 @@ LISP closure_code(LISP exp)
 LISP closure_env(LISP exp)
 {return(exp->storage_as.closure.env);}
 
-long int get_c_int(LISP x)
+int get_c_int(LISP x)
 {if NFLONUMP(x) err("not a number",x);
- return((long int)FLONM(x));}
+ return((int)FLONM(x));}
 
 double get_c_double(LISP x)
 {if NFLONUMP(x) err("not a number",x);

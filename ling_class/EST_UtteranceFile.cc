@@ -46,9 +46,6 @@
 #include "EST_Token.h"
 #include "ling_class/EST_Utterance.h"
 #include "EST_UtteranceFile.h"
-#include "EST_File.h"
-
-using namespace std;
 
 static EST_read_status load_all_contents(EST_TokenStream &ts,
 //					 EST_THash<int,EST_Val> &sitems,
@@ -72,7 +69,7 @@ static EST_write_status utt_save_ling_content(ostream &outf,
 					      EST_TKVL<void *,int> &sinames,
 					      int &si_count);
 
-static void node_tidy_up(ssize_t &k, EST_Item_Content *node)
+static void node_tidy_up(int &k, EST_Item_Content *node)
 {
     // Called to delete the nodes in the hash table when a load
     (void)k;
@@ -160,7 +157,7 @@ EST_read_status EST_UtteranceFile::load_est_ascii(EST_TokenStream &ts,
     //    {
 	// This works because even if some of these si's have been
 	// linked to nodes they will be unlink when the si is destroyed
-    for(ssize_t ni=0; ni < sitems.length(); ni++)
+    for(int ni=0; ni < sitems.length(); ni++)
       {
 	EST_Item_Content *c = sitems[ni];
 	if (c != NULL)
@@ -181,14 +178,15 @@ static EST_read_status load_all_contents(EST_TokenStream &ts,
     // by relations
     EST_String Sid;
     bool ok;
-    ssize_t id;
-    int idval;
+    int id,idval;
 
     while (ts.peek() != "End_of_Stream_Items")
     {
 	EST_Item_Content *si = new EST_Item_Content;
 
 	si->relations.add_item("__READ__", est_val((EST_Item *)NULL), 1);
+
+	id = 0;
 
 	Sid = ts.get().string();
 
@@ -197,7 +195,6 @@ static EST_read_status load_all_contents(EST_TokenStream &ts,
 	{
 	    cerr << "utt_load: " << ts.pos_description() << 
 		" Item name not a number: " << Sid << endl;
-      delete si;
 	    return misc_read_error;
 	}
 	if (id >= sitems.length())
@@ -234,10 +231,9 @@ static EST_read_status load_relations(EST_TokenStream &ts,
 	// after its loaded
 	EST_Relation *r = new EST_Relation;
 
-	if (r->load(ts,sitems) != format_ok) {
-      delete r;
+	if (r->load(ts,sitems) != format_ok)
 	    return misc_read_error;
-  }
+
 	r->set_utt(&utt);
 	utt.relations.set_val(r->name(),est_val(r));
 
@@ -254,10 +250,10 @@ static EST_read_status load_relations(EST_TokenStream &ts,
 EST_write_status EST_UtteranceFile::save_est_ascii(ostream &outf,const EST_Utterance &utt)
 {
     EST_write_status v = write_ok;
-
-	std::streamsize oldprecision = outf.precision(8);
-	std::ios_base::fmtflags oldsetf = outf.setf(ios::fixed, ios::floatfield);
-	std::streamsize oldwidth = outf.width(8);
+    
+    outf.precision(8);
+    outf.setf(ios::fixed, ios::floatfield);
+    outf.width(8);
     
     outf << "EST_File utterance\n"; // EST header identifier.
     outf << "DataType ascii\n";
@@ -286,12 +282,6 @@ EST_write_status EST_UtteranceFile::save_est_ascii(ostream &outf,const EST_Utter
     outf << "End_of_Relations\n";
 
     outf << "End_of_Utterance\n";
-
-	outf.precision(oldprecision);
-	outf.setf(oldsetf);
-	outf.width(oldwidth);
-
-
     return write_ok;
 }
 
@@ -428,44 +418,28 @@ EST_read_status EST_UtteranceFile::load_apml(EST_TokenStream &ts,
   if ((stream=ts.filedescriptor())==NULL)
     return read_error;
 
-  EST_FilePos pos=EST_ftell(stream);
+  long pos=ftell(stream);
 
   {
+  char buf[80];
 
-  char buf[81];
-  buf[0] = 0;
-  if (fgets(buf, 80, stream) == NULL)
-  {
-    if (ferror(stream)) {
-      cerr << "Error reading xml header" << endl;
-      return read_error;
-    }
-  }
+  fgets(buf, 80, stream);
+
   if (strncmp(buf, "<?xml", 5) != 0)
     return read_format_error;
 
-  buf[0] = 0;
-  if (fgets(buf, 80, stream) == NULL)
-  {
-    if (ferror(stream)) {
-      cerr << "Error reading DOCTYPE apml header" << endl;
-      return read_error;
-    }
-  }
+  fgets(buf, 80, stream);
 
   if (strncmp(buf, "<!DOCTYPE apml", 14) != 0)
     return read_format_error;
   }
 
-  if (EST_fseek(stream, pos, 0) != 0) {
-      cerr << "Error reading DOCTYPE apml header" << endl;
-	  return read_error;
-  }
+  fseek(stream, pos, 0);
 
   EST_read_status stat = apml_read(stream, ts.filename(),u, max_id);
 
   if (stat != read_ok)
-    EST_fseek(stream, pos, 0);
+    fseek(stream, pos, 0);
 
   return stat;
 }
@@ -482,36 +456,23 @@ EST_read_status EST_UtteranceFile::load_genxml(EST_TokenStream &ts,
   if ((stream=ts.filedescriptor())==NULL)
     return read_error;
 
-  EST_FilePos pos=EST_ftell(stream);
-  if (pos < 0 ) {
-	cerr << "Error reading xml header" << endl;
-    return read_error;
-  }
+  long pos=ftell(stream);
 
   {
-  char buf[81];
-  buf[0] = 0;
-  if (fgets(buf, 80, stream) == NULL)
-  {
-    if (ferror(stream)) {
-      cerr << "Error reading xml header" << endl;
-      return read_error;
-    }
-    
-  }
+  char buf[80];
+
+  fgets(buf, 80, stream);
+
   if (strncmp(buf, "<?xml", 5) != 0)
     return read_format_error;
   }
 
-  if (EST_fseek(stream, pos, 0) != 0) {
-      cerr << "Error reading xml file" << endl;
-	  return read_error;
-  }
+  fseek(stream, pos, 0);
 
   EST_read_status stat = EST_GenXML::read_xml(stream, ts.filename(),u, max_id);
 
   if (stat != read_ok)
-    EST_fseek(stream, pos, 0);
+    fseek(stream, pos, 0);
 
   return stat;
 }
@@ -652,7 +613,7 @@ EST_String EST_UtteranceFile::options_supported(void)
 	      if (nm==NULL)
 		break;
 	
-	      s += EST_String::cat("        ", nm, EST_String(" ")*(12-strlen((nm))), (d?d:"NULL"), "\n");
+	      s += EST_String::cat("        ", (nm?nm:"NULL"), EST_String(" ")*(12-strlen((nm?nm:"NULL"))), (d?d:"NULL"), "\n");
 	    }
 	}
     }

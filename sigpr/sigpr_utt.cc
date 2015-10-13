@@ -49,8 +49,6 @@
 #include "EST_types.h"
 #include "EST_string_aux.h"
 
-using namespace std;
-
 void sigpr_acc(EST_Wave &sig, EST_Track &fv, EST_Features &op, 
 		const EST_StrList &slist);
 
@@ -422,8 +420,7 @@ void sig2coef(EST_Wave &sig, EST_Track &tr, EST_String type,
 void power(EST_Wave &sig, EST_Track &pow, float factor)
 {
     EST_FVector frame;
-    int window_start, window_size, pos;
-    ssize_t k;
+    int window_start, window_size, pos, k;
 
     EST_WindowFunc *wf =  EST_Window::creator("rectangular");
 
@@ -445,8 +442,7 @@ void power(EST_Wave &sig, EST_Track &pow, float factor)
 void energy(EST_Wave &sig, EST_Track &pow, float factor)
 {
     EST_FVector frame;
-    int window_start, window_size, pos;
-    ssize_t k;
+    int window_start, window_size, pos, k;
 
     EST_WindowFunc *wf =  EST_Window::creator("rectangular");
 

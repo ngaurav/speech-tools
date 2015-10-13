@@ -42,8 +42,6 @@
 #include <cstdio>
 #include "EST_viterbi.h"
 
-using namespace std;
-
 static void init_paths_array(EST_VTPoint *n,int num_states);
 static void debug_output_1(EST_VTPoint *p,EST_VTCandidate *c, 
 			   EST_VTPath *np, int i);
@@ -80,7 +78,6 @@ EST_Viterbi_Decoder::EST_Viterbi_Decoder(uclist_f_t a, unpath_f_t b)
     debug = FALSE;
     trace = FALSE;
     big_is_good = TRUE;  // for probabilities it is
-    timeline = 0;
 }
 
 EST_Viterbi_Decoder::EST_Viterbi_Decoder(uclist_f_t a, unpath_f_t b, int s)
@@ -101,7 +98,6 @@ EST_Viterbi_Decoder::EST_Viterbi_Decoder(uclist_f_t a, unpath_f_t b, int s)
     debug = FALSE;
     trace = FALSE;
     big_is_good = TRUE;  // for probabilities it is
-    timeline = 0;
 }
 
 EST_Viterbi_Decoder::~EST_Viterbi_Decoder()
@@ -155,7 +151,7 @@ static void init_paths_array(EST_VTPoint *n,int num_states)
 	n->st_paths[j] = 0;
 }
 
-int EST_Viterbi_Decoder::betterthan(const float a,const float b) const
+const int EST_Viterbi_Decoder::betterthan(const float a,const float b) const
 {
     // Some thing big is better, others want it to be as small as possible
     // this just tells you if a is better than b by checking the variable
@@ -471,21 +467,21 @@ EST_VTCandidate *EST_Viterbi_Decoder::add_cand_prune(EST_VTCandidate *newcand,
     EST_VTCandidate *pp;
     int numcands;
     
-    if (allcands == NULL)
+    if (allcands == 0)
 	numcands = 0;
     else
 	numcands = allcands->pos;
     
     if ((cand_width == 0) ||	// Add if no candbeam restrictions or
 	(numcands < cand_width) || //        candbeam not filled  or
-	(allcands == NULL || betterthan(newcand->score,allcands->score))) //this better than best
+	(betterthan(newcand->score,allcands->score))) //this better than best
     {
 	EST_VTCandidate **l = &newlist;
 	EST_VTCandidate *a;
 	
 	for (a=newlist;		/* scary */ ; a=a->next)
 	{
-	    if ((a == NULL) || (betterthan(a->score,newcand->score)))
+	    if ((a == 0) || (betterthan(a->score,newcand->score)))
 	    {			// Add new path here 
 		newcand->next = a;
 		*l = newcand;

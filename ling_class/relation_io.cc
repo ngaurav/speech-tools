@@ -48,8 +48,6 @@
 #include "EST_Option.h"
 #include "relation_io.h"
 
-using namespace std;
-
 #define DEF_SAMPLE_RATE 16000
 #define HTK_UNITS_PER_SECOND 10000000
 
@@ -155,9 +153,9 @@ EST_write_status save_esps_label(ostream *outf,
     for (ptr = s.head(); ptr != 0; ptr = ptr->next())
     {
 	*outf << "\t";
-	std::streamsize oldprecision = outf->precision(5);
-	std::ios_base::fmtflags oldsetf = outf->setf(ios::fixed, ios::floatfield);
-	std::streamsize oldwidth = outf->width(8);
+	outf->precision(5);
+	outf->setf(ios::fixed, ios::floatfield);
+	outf->width(8);
 	//	outf->fill('0');
 	if (s.f("timing_style","0") == "event")
 	    *outf << ptr->F("time",0);
@@ -179,11 +177,6 @@ EST_write_status save_esps_label(ostream *outf,
 	    f2.save(*outf);
 	}
 	*outf << endl;
-
-	outf->precision(oldprecision);
-	outf->setf(oldsetf);
-	outf->width(oldwidth);
-
     }
     
     return write_ok;
@@ -285,8 +278,7 @@ EST_read_status read_label_portion(EST_TokenStream &ts, EST_Relation &s,
 				   int sample)
 {
     EST_Item *item;
-    /*float hstart;*/
-    float hend;
+    float hstart, hend;
     EST_String str;
     
     while(!ts.eof())
@@ -297,7 +289,7 @@ EST_read_status read_label_portion(EST_TokenStream &ts, EST_Relation &s,
 	
 	item = s.append();
 	
-	/*hstart = convert_long_num_string_to_time(str,sample);*/
+	hstart = convert_long_num_string_to_time(str,sample);
 	str = ts.get().string();
 	hend = convert_long_num_string_to_time(str,sample);
 	

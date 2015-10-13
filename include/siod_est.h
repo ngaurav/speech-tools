@@ -40,8 +40,6 @@
 #ifndef __SIOD_EST_H__
 #define __SIOD_EST_H__
 
-#include "siod.h"
-
 void siod_est_init();
 void siod_fringe_init();
 

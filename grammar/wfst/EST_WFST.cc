@@ -66,8 +66,6 @@ Instantiate_TVector_T(EST_WFST_State *, EST_WFST_StateP)
 
 #endif
 
-using namespace std;
-
 // Used for marking states duration traversing functions
 int EST_WFST::traverse_tag = 0;
 
@@ -129,8 +127,6 @@ EST_WFST::EST_WFST()
 {
     p_num_states = 0;
     init(0);
-    p_start_state = 0;
-    current_tag = 0;
 }
 
 void EST_WFST::copy(const EST_WFST &wfst)
@@ -431,11 +427,7 @@ EST_write_status EST_WFST::save(const EST_String &filename,
 static float get_float(FILE *fd,int swap)
 {
     float f;
-    if (fread(&f,4,1,fd) != 1)
-    {
-        cerr << "Could not get float from WFST" << endl;
-        return 0;
-    }
+    fread(&f,4,1,fd);
     if (swap) swapfloat(&f);
     return f;
 }
@@ -443,11 +435,7 @@ static float get_float(FILE *fd,int swap)
 static int get_int(FILE *fd,int swap)
 {
     int i;
-    if (fread(&i,4,1,fd) != 1)
-    {
-        cerr << "Could not get int from WFST" << endl;
-        return 0;
-    }
+    fread(&i,4,1,fd);
     if (swap) 
 	return SWAPINT(i);
     else
@@ -459,7 +447,6 @@ EST_read_status EST_WFST::load_binary(FILE *fd,
 				      int num_states,
 				      int swap)
 {
-    (void)hinfo;
     EST_read_status r;
     int i,j, s;
     int num_trans, state_type;
@@ -633,10 +620,6 @@ EST_read_status EST_WFST::load_transitions_from_lisp(int s, LISP trans)
 	    cerr << "WFST load: unknown vocabulary in state transition" 
 		<< endl;
 	    cerr << "WFST load:  " << siod_sprint(car(t)) << endl;
-        ssize_t i;
-        /* Remove all added transitions: */
-        for (i=0;i<p_states[s]->transitions.length();i++)
-            delete (p_states[s]->transitions).nth(i);
 	    return read_format_error;
 	}
 	p_states[s]->add_transition(w,end,in,out);

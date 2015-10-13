@@ -44,8 +44,6 @@
 #include "EST_Token.h"
 #include "EST_StringTrie.h"
 
-using namespace std;
-
 bool save(Lattice &lattice, EST_String filename)
 {
     ostream *outf;
@@ -95,6 +93,7 @@ bool save(Lattice &lattice, EST_String filename)
 	else
 	    *outf << "# Arcs" << endl;
 
+	ncount=0;
 	acount=0;
 
 	for (n_ptr = lattice.nodes.head(); n_ptr != 0; n_ptr = n_ptr->next()){
@@ -460,9 +459,6 @@ load(Lattice &lattice,EST_String filename)
 
 	    if(n_ptr == NULL){
 		cerr << "Couldn't find 'from' node ";
-        for (i=0;i<lattice.alphabet.length();i++)
-           delete &(lattice.alphabet[i]);
-        delete[] used;
 		return false;
 	    }
 	}

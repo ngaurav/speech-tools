@@ -41,8 +41,6 @@
 #include "EST_math.h"
 #include "EST_types.h"
 
-using namespace std;
-
 int nth(EST_String name, EST_TList<EST_String> &lex)
 {
     EST_Litem *p;

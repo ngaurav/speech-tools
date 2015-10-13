@@ -49,14 +49,60 @@
 #include "EST_Wagon.h"
 #include "EST_cmd_line.h"
 
-using namespace std;
-
 enum wn_strategy_type {wn_decision_list, wn_decision_tree};
 
 static wn_strategy_type wagon_type = wn_decision_tree;
 
 static int wagon_main(int argc, char **argv);
 
+/** @name <command>wagon</command> <emphasis>CART building program</emphasis>
+    @id wagon_manual
+  * @toc
+ */
+
+//@{
+
+
+/**@name Synopsis
+  */
+//@{
+
+//@synopsis
+
+/**
+wagon is used to build CART tress from feature data, its basic
+features include:
+
+<itemizedlist>
+<listitem><para>both decisions trees and decision lists are supported</para></listitem>
+<listitem><para>predictees can be discrete or continuous</para></listitem>
+<listitem><para>input features may be discrete or continuous</para></listitem>
+<listitem><para>many options for controlling tree building</para>
+<itemizedlist>
+<listitem><para>fixed stop value</para></listitem>
+<listitem><para>balancing</para></listitem>
+<listitem><para>held-out data and pruning</para></listitem>
+<listitem><para>stepwise use of input features</para></listitem>
+<listitem><para>choice of optimization criteria correct/entropy (for 
+classification and rmse/correlation (for regression)</para></listitem>
+</itemizedlist>
+</listitem>
+</itemizedlist>
+
+A detailed description of building CART models can be found in the
+<link linkend="cart-overview">CART model overview</link> section.
+
+*/
+
+//@}
+
+/**@name OPTIONS
+  */
+//@{
+
+//@options
+
+//@}
 
 int main(int argc, char **argv)
 {
@@ -74,7 +120,7 @@ static int set_Vertex_Feats(EST_Track &wgn_VertexFeats,
     EST_TokenStream ts;
 
     for (i=0; i<wgn_VertexFeats.num_channels(); i++)
-        wgn_VertexFeats.a(static_cast<ssize_t>(0),i) = 0.0;
+        wgn_VertexFeats.a(0,i) = 0.0;
 
     ts.open_string(wagon_track_features);
     ts.set_WhiteSpaceChars(",- ");
@@ -89,12 +135,12 @@ static int set_Vertex_Feats(EST_Track &wgn_VertexFeats,
         if (token == "all")
         {
             for (i=0; i<wgn_VertexFeats.num_channels(); i++)
-                wgn_VertexFeats.a(static_cast<ssize_t>(0),i) = 1.0;
+                wgn_VertexFeats.a(0,i) = 1.0;
             break;
         } else if ((ws == ",") || (ws == ""))
         {
             s = atoi(token.string());
-            wgn_VertexFeats.a(static_cast<ssize_t>(0),s) = 1.0;
+            wgn_VertexFeats.a(0,s) = 1.0;
         } else if (ws == "-")
         {
             if (token == "")
@@ -102,12 +148,12 @@ static int set_Vertex_Feats(EST_Track &wgn_VertexFeats,
             else
                 e = atoi(token.string());
             for (i=s; i<=e && i<wgn_VertexFeats.num_channels(); i++)
-                wgn_VertexFeats.a(static_cast<ssize_t>(0),i) = 1.0;
+                wgn_VertexFeats.a(0,i) = 1.0;
         } else
         {
-            printf("wagon: track_feats invalid: %s at position %lld\n",
+            printf("wagon: track_feats invalid: %s at position %d\n",
                    (const char *)wagon_track_features,
-                   (long long int) ts.filepos());
+                   ts.filepos());
             exit(-1);
         }
     }
@@ -268,7 +314,7 @@ static int wagon_main(int argc, char **argv)
         wgn_VertexTrack.load(al.val("-track"));
         wgn_VertexFeats.resize(1,wgn_VertexTrack.num_channels());
         for (i=0; i<wgn_VertexFeats.num_channels(); i++)
-            wgn_VertexFeats.a(static_cast<ssize_t>(0),i) = 1.0;
+            wgn_VertexFeats.a(0,i) = 1.0;
     }
 
     if (al.present("-track_start"))
@@ -283,7 +329,7 @@ static int wagon_main(int argc, char **argv)
             exit(-1);
         }
         for (i=0; i<feats_start; i++)
-            wgn_VertexFeats.a(static_cast<ssize_t>(0),i) = 0.0; /* don't do feats up to start */
+            wgn_VertexFeats.a(0,i) = 0.0; /* don't do feats up to start */
             
     }
 
@@ -300,7 +346,7 @@ static int wagon_main(int argc, char **argv)
             exit(-1);
         }
         for (i=feats_end+1; i<wgn_VertexTrack.num_channels(); i++)
-            wgn_VertexFeats.a(static_cast<ssize_t>(0),i) = 0.0; /* don't do feats after end */
+            wgn_VertexFeats.a(0,i) = 0.0; /* don't do feats after end */
     }
     if (al.present("-track_feats"))
     {   /* overrides start and end numbers */
@@ -310,7 +356,7 @@ static int wagon_main(int argc, char **argv)
 
     //    printf("Track feats\n");
     //    for (i=0; i<wgn_VertexTrack.num_channels(); i++)
-    //        if (wgn_VertexFeats.a(static_cast<ssize_t>(0),i) > 0.0)
+    //        if (wgn_VertexFeats.a(0,i) > 0.0)
     //            printf("%d ",i);
     //    printf("\n");
 
@@ -341,7 +387,6 @@ static int wagon_main(int argc, char **argv)
     {
 	*wgn_coutput << *tree;
 	summary_results(*tree,wgn_coutput);
-    delete tree;
     }
 
     if (wgn_coutput != &cout)
@@ -349,3 +394,76 @@ static int wagon_main(int argc, char **argv)
     return 0;
 }
 
+/** @name Building Trees
+
+To build a decision tree (or list) Wagon requires data and a description
+of it.  A data file consists a set of samples, one per line each
+consisting of the same set of features.   Features may be categorial
+or continuous.  By default the first feature is the predictee and the
+others are used as predictors.  A typical data file will look like
+this
+</para>
+<para>
+<screen>
+0.399 pau sh  0   0     0 1 1 0 0 0 0 0 0 
+0.082 sh  iy  pau onset 0 1 0 0 1 1 0 0 1
+0.074 iy  hh  sh  coda  1 0 1 0 1 1 0 0 1
+0.048 hh  ae  iy  onset 0 1 0 1 1 1 0 1 1
+0.062 ae  d   hh  coda  1 0 0 1 1 1 0 1 1
+0.020 d   y   ae  coda  2 0 1 1 1 1 0 1 1
+0.082 y   ax  d   onset 0 1 0 1 1 1 1 1 1
+0.082 ax  r   y   coda  1 0 0 1 1 1 1 1 1
+0.036 r   d   ax  coda  2 0 1 1 1 1 1 1 1
+...
+</screen>
+</para>
+<para>
+The data may come from any source, such as the festival script 
+dumpfeats which allows the creation of such files easily from utterance
+files.  
+</para><para>
+In addition to a data file a description file is also require that 
+gives a name and a type to each of the features in the datafile.
+For the above example it would look like
+</para><para>
+<screen>
+((segment_duration float)
+ ( name  aa ae ah ao aw ax ay b ch d dh dx eh el em en er ey f g 
+    hh ih iy jh k l m n nx ng ow oy p r s sh t th uh uw v w y z zh pau )
+ ( n.name 0 aa ae ah ao aw ax ay b ch d dh dx eh el em en er ey f g 
+    hh ih iy jh k l m n nx ng ow oy p r s sh t th uh uw v w y z zh pau )
+ ( p.name 0 aa ae ah ao aw ax ay b ch d dh dx eh el em en er ey f g 
+    hh ih iy jh k l m n nx ng ow oy p r s sh t th uh uw v w y z zh pau )
+ (position_type 0 onset coda)
+ (pos_in_syl float)
+ (syl_initial 0 1)
+ (syl_final   0 1)
+ (R:Sylstructure.parent.R:Syllable.p.syl_break float)
+ (R:Sylstructure.parent.syl_break float)
+ (R:Sylstructure.parent.R:Syllable.n.syl_break float)
+ (R:Sylstructure.parent.R:Syllable.p.stress 0 1)
+ (R:Sylstructure.parent.stress 0 1)
+ (R:Sylstructure.parent.R:Syllable.n.stress 0 1)
+)
+</screen>
+</para><para>
+The feature names are arbitrary, but as they appear in the generated
+trees is most useful if the trees are to be used in prediction of
+an utterance that the names are features and/or pathnames.  
+</para><para>
+Wagon can be used to build a tree with such files with the command
+<screen>
+wagon -data feats.data -desc fest.desc -stop 10 -output feats.tree
+</screen>
+A test data set may also be given which must match the given data description.
+If specified the built tree will be tested on the test set and results
+on that will be presented on completion, without a test set the
+results are given with respect to the training data.  However in
+stepwise case the test set is used in the multi-level training process
+thus it cannot be considered as true test data and more reasonable 
+results should found on applying the generate tree to truly
+held out data (via the program wagon_test).
+
+*/
+
+//@}

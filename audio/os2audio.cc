@@ -253,7 +253,6 @@ int play_os2audio_wave(EST_Wave &inwave, EST_Option &al)
 
 # include "EST_Wave.h"
 # include "EST_Option.h"
-# include <iostream>
 
 int os2audio_supported = FALSE;
 
@@ -261,7 +260,7 @@ int play_os2audio_wave(EST_Wave &inwave, EST_Option &al)
 {
     (void)inwave;
     (void)al;
-    std::cerr << "OS/2 16bit realtime DART playback not supported." << std::endl;
+    cerr << "OS/2 16bit realtime DART playback not supported." << endl;
     return -1;
 }
 

@@ -38,13 +38,12 @@
 #include "EST_TVector.h"
 #include "instantiate/EST_TDequeI.h"
 
-/** @class EST_TDeque
-  * @brief Double ended queue.
-  * @ingroup containerclasses
+/** Double ended queue.
   * 
   * @author Richard Caley <rjc@cstr.ed.ac.uk>
   * @version $Id: EST_TDeque.h,v 1.3 2006/07/19 21:52:12 awb Exp $
   */
+
 template <class T>
 class EST_TDeque {
 private:
@@ -71,47 +70,47 @@ public:
   bool is_empty(void) const;
 
   /// print picture of state. Mostly useful for debugging.
-  std::ostream &print(std::ostream &s) const;
+  ostream &print(ostream &s) const;
 
   /**@name stack
     * 
     * An interface looking like a stack.
     */
-  ///@{
+  //@{
   void push(T &item);
   T &pop(void);
   T &nth(int i);
-  ///@}
+  //@}
 
   /**@name inverse stack
     * 
     * The other end as a stack.
     */
-  ///@{
+  //@{
   void back_push(T& item);
   T &back_pop(void);
-  ///@}
+  //@}
 
   /**@name queue
     * 
     * An interface looking like a queue.
     */
-  ///@{
+  //@{
   void add(T& item) { push(item); }
   T &next() { return back_pop(); }
   T &last() { return pop(); }
-  ///@}
+  //@}
 
   /**@name perl
     * 
     * For people who think in perl
     */
-  ///@{
+  //@{
   void unshift(T& item) { back_push(item); }
   T &shift() { return back_pop(); }
-  ///@}
+  //@}
 
-  friend std::ostream& operator << (std::ostream &st, const EST_TDeque< T > &deq)
+  friend ostream& operator << (ostream &st, const EST_TDeque< T > &deq)
     {
         return deq.print(st);
     }

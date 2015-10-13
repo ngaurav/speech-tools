@@ -40,13 +40,6 @@
 #ifndef __EST_RELATION_COMPARE_H__
 #define __EST_RELATION_COMPARE_H__
 
-#include <cstdlib>
-#include "EST_Item.h"
-#include "EST_Relation.h"
-#include "EST_String.h"
-#include "EST_Option.h"
-#include "EST_Utterance.h"
-
 float label_distance1(EST_Item &ref, EST_Item &test);
 EST_Item *nthpos(EST_Relation &a, int n);
 void compare_labels(EST_Relation &reflab, EST_Relation &testlab);
@@ -55,12 +48,12 @@ void function_match(EST_II_KVL &u, EST_Relation &a, EST_Relation &b);
 void monotonic_match(EST_II_KVL &a, EST_II_KVL &b);
 void show_links(EST_Relation &a, EST_Relation &b);
 int close_enough(EST_Item &a, EST_Item &b);
-ssize_t matrix_deletions(EST_FMatrix &m);
-ssize_t matrix_insertions(EST_FMatrix &m);
+int matrix_deletions(EST_FMatrix &m);
+int matrix_insertions(EST_FMatrix &m);
 void matrix_ceiling(EST_FMatrix &m, float max);
 void minimise_matrix_by_row(EST_FMatrix &m);
 void minimise_matrix_by_column(EST_FMatrix &m);
-ssize_t lowest_pos(EST_FMatrix &m, ssize_t j);
+int lowest_pos(EST_FMatrix &m, int j);
 float label_distance2(EST_Item &ref, EST_Item &test);
 
 
@@ -71,8 +64,8 @@ void pos_only(EST_Relation &a);
 void print_s_trans(EST_Relation &a, int width=3);
 int num_b_deletions(EST_FMatrix &m, int last, int current);
 int num_b_insertions(EST_FMatrix &m, int last, int current);
-ssize_t column_hit(EST_FMatrix &m, ssize_t c);
-ssize_t row_hit(EST_FMatrix &m, ssize_t r);
+int column_hit(EST_FMatrix &m, int c);
+int row_hit(EST_FMatrix &m, int r);
 void print_matrix_scores(EST_Relation &ref, EST_Relation &test, EST_FMatrix &a);
 void print_i_d_scores(EST_FMatrix &m);
 void test_labels(EST_Utterance &ref, EST_Utterance &test, EST_Option &op);

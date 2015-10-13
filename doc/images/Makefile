@@ -46,9 +46,8 @@ SVGIMAGES = relations_2.svg relations.svg tilt-f0-representation.svg \
 EPSIMAGES = relations_2.eps relations.eps tilt-f0-representation.eps \
             tilt-search-region.eps typical-pitch-accent.eps
 
-IMAGES = $(SVGIMAGES) $(EPSIMAGES)
-
-FILES = $(IMAGES) Makefile
+IMAGES = $(SVGIMAGES) $(EPSIMAGES) 
+FILES = Makefile ${IMAGES}
 
 -include $(TOP)/config/common_make_rules
 

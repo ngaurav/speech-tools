@@ -124,7 +124,6 @@ void EST_BackoffNgrammarState::clear()
 void EST_BackoffNgrammarState::init()
 {
     backoff_weight=0;
-    p_level = -1; /* It better be sanely initialized somewhere else */
     p_pdf.init();
 }
 
@@ -214,7 +213,7 @@ bool EST_BackoffNgrammarState::accumulate(const EST_IVector &words,
 	s = get_child(words(words.n()-1-p_level));
 	if (s==NULL)
 	    // have to extend the tree
-	    add_child(p_pdf.get_discrete(),words);
+	    s = add_child(p_pdf.get_discrete(),words);
 
 	// get pointer again in case we built more than one level
 	s = get_child(words(words.n()-1-p_level));
@@ -344,7 +343,7 @@ bool EST_BackoffNgrammarState::ngram_exists(const EST_StrVector &words,
       return false;
 }
 
-const EST_BackoffNgrammarState *
+const EST_BackoffNgrammarState *const
 EST_BackoffNgrammarState::get_state(const EST_StrVector &words) const
 {
     EST_BackoffNgrammarState *s;
@@ -393,7 +392,7 @@ void EST_BackoffNgrammarState::zap()
 }
 
 
-double EST_BackoffNgrammarState::get_backoff_weight(const EST_StrVector &words) const
+const double EST_BackoffNgrammarState::get_backoff_weight(const EST_StrVector &words) const
 {
     EST_BackoffNgrammarState *s;
     if (words.n()-1-p_level >= 0)
@@ -658,7 +657,7 @@ bool EST_Ngrammar::init_vocab(const EST_StrList &word_list)
     pred_vocab = vocab;	// same thing in this case
     vocab_pdf.init(pred_vocab);
     
-    return true;
+    return (bool)(vocab != NULL);
 }
 
 bool EST_Ngrammar::init_vocab(const EST_StrList &word_list,
@@ -672,7 +671,7 @@ bool EST_Ngrammar::init_vocab(const EST_StrList &word_list,
 	return false;
     vocab_pdf.init(pred_vocab);
     
-    return true;
+    return (bool)(vocab != NULL);
 }
 
 bool EST_Ngrammar::check_vocab(const EST_StrList &word_list)
@@ -995,7 +994,7 @@ bool EST_Ngrammar::ngram_exists(const EST_StrVector &words, const double thresho
 }
 
 
-double EST_Ngrammar::get_backoff_weight(const EST_StrVector &words) const
+const double EST_Ngrammar::get_backoff_weight(const EST_StrVector &words) const
 {
     if(p_representation == EST_Ngrammar::backoff)
 	return backoff_representation->get_backoff_weight(words);
@@ -1504,7 +1503,7 @@ bool EST_Ngrammar::compute_backoff_weights(const int mincount,
     
     backoff_restore_unigram_states();
     
-    Good_Turing_discount(*this,maxcount);
+    Good_Turing_discount(*this,maxcount,0.5);
     
     // and since some frequencies will have been set to zero
     // we have to prune away those branches of the tree
@@ -2145,6 +2144,9 @@ EST_Ngrammar::load(const EST_String &filename)
     }
     else
 	return misc_read_error;
+    
+    cerr << "EST_Ngrammar::load can't determine ngrammar file type for input file " << filename << endl;
+    return wrong_format;
 }
 
 EST_read_status
@@ -2382,7 +2384,7 @@ EST_Ngrammar::backoff_prob_dist(const EST_StrVector &words) const
     return *p;
 }
 
-double EST_Ngrammar::get_backoff_discount(const int order, const double freq) const
+const double EST_Ngrammar::get_backoff_discount(const int order, const double freq) const
 {
     if(order > p_order)
     {
@@ -2397,7 +2399,7 @@ double EST_Ngrammar::get_backoff_discount(const int order, const double freq) co
 	return 0;
 }
 
-double EST_Ngrammar::backoff_probability(const EST_StrVector &words,
+const double EST_Ngrammar::backoff_probability(const EST_StrVector &words,
 					       const bool trace) const
 {
     const EST_BackoffNgrammarState *state;
@@ -2509,11 +2511,16 @@ double EST_Ngrammar::backoff_probability(const EST_StrVector &words,
 	
 	return bo_wt * backoff_probability(new_ngram,trace);
     }
-   
+    
+    // should never reach here !
+    // but gcc thinks it does
+    cerr << "oops !";
+    return -1;
+    
 }
 
 
-double 
+const double 
 EST_Ngrammar::backoff_reverse_probability_sub(const EST_StrVector &words,
 					      const EST_BackoffNgrammarState *root) const
 {
@@ -2577,10 +2584,16 @@ EST_Ngrammar::backoff_reverse_probability_sub(const EST_StrVector &words,
 	
 	//cerr << "backed off(" << bo_wt << ") ";
 	return bo_wt * backoff_reverse_probability_sub(new_ngram,root);
-    }    
+    }
+    
+    // should never reach here !
+    // but gcc thinks it does
+    cerr << "oops !";
+    return -1;
+    
 }
 
-double 
+const double 
 EST_Ngrammar::backoff_reverse_probability(const EST_StrVector &words) const
 {
     

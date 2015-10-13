@@ -44,12 +44,10 @@
 
 #include "EST_get_function_template.h"
 
-using namespace std;
-
 defineGetFunction(EST_Features, val, EST_Val, getVal)
 defineGetFunction(EST_Features, val, EST_String, getString)
 defineGetFunction(EST_Features, val, float, getFloat)
-defineGetFunction(EST_Features, val, ssize_t, getInteger)
+defineGetFunction(EST_Features, val, int, getInteger)
 VAL_REGISTER_FUNCPTR(pointer, void *)
 
 

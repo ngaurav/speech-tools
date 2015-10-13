@@ -45,8 +45,6 @@
 #include "EST_THandle.h"
 #include "EST_String.h"
 
-using namespace std;
-
 
 int main(void)
 {

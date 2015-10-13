@@ -51,8 +51,6 @@
 #include "EST_FMatrix.h"
 #include "EST_multistats.h"
 
-using namespace std;
-
 static WDlist *wagon_decision_list();
 static void do_dlist_summary(WDlist *dlist, WDataSet &dataset);
 static WDlist *dlist_score_question(WQuestion &q, WVectorList &ds);

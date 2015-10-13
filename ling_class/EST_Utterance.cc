@@ -46,8 +46,6 @@
 #include "EST_UtteranceFile.h"
 #include "EST_string_aux.h"
 
-using namespace std;
-
 const EST_String DEF_FILE_TYPE = "est_ascii";
 
 static void clear_up_sisilist(EST_TKVL<EST_Item_Content *,EST_Item *> &s);
@@ -475,18 +473,11 @@ EST_read_status EST_Utterance::load(EST_TokenStream &ts)
 {
     EST_read_status stat=read_error;
     int pos = ts.tell();
-    int max_id=-2, n;
-    int num_formats = EST_UtteranceFile::map.n();
+    int max_id;
+
     init();  // we're committed to reading something so clear utterance
 
-    if (num_formats <= 0)
-    {
-        EST_error("There is not a single UtteranceFile format declared \
-                   in EST source code. This should not happen!");
-        return misc_read_error;
-    }
-    
-    for(n=0; n< num_formats ; n++)
+    for(int n=0; n< EST_UtteranceFile::map.n() ; n++)
     {
 	EST_UtteranceFileType t = EST_UtteranceFile::map.token(n);
 	
@@ -503,10 +494,7 @@ EST_read_status EST_Utterance::load(EST_TokenStream &ts)
 	if (l_fun == NULL)
 	    continue;
 
-	if (ts.seek(pos) != 0) {
-		cerr << "load utterance: read error." << endl;
-		return misc_read_error;
-	}
+	ts.seek(pos);
 
 	stat = (*l_fun)(ts, *this, max_id);
 	

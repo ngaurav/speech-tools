@@ -141,7 +141,7 @@ INFO &EST_TValuedEnumI<ENUM,VAL,INFO>::info (ENUM token) const
     if (this->definitions[i].token == token)
       return this->definitions[i].info;
 
-  std::cerr << "Fetching info for invalid entry" << std::endl;
+  cerr << "Fetching info for invalid entry\n";
   abort();
 
   static INFO dummyI;
@@ -198,7 +198,7 @@ EST_read_status EST_TNamedEnum<ENUM>::priv_load(EST_String name, EST_TNamedEnum<
     {
       if ( buffer[LINE_LENGTH-1] != 'x')
 	{
-	  std::cerr << "line too long .. '" << buffer << "'\n";
+	  cerr << "line too long .. '" << buffer << "'\n";
 	  return wrong_format;
 	}
 
@@ -208,7 +208,7 @@ EST_read_status EST_TNamedEnum<ENUM>::priv_load(EST_String name, EST_TNamedEnum<
 
 	  if ( n>= this->ndefinitions)
 	    {
-	      std::cerr << "too many definitions\n";
+	      cerr << "too many definitions\n";
 	      return wrong_format;
 	    }
 
@@ -227,12 +227,12 @@ EST_read_status EST_TNamedEnum<ENUM>::priv_load(EST_String name, EST_TNamedEnum<
 	  // definition by standard name
 	  if (!definitive)
 	    {
-	      std::cerr << "can't use names in this definition\n";
+	      cerr << "can't use names in this definition\n";
 	      return wrong_format;
 	    }
 	  if ( n>= this->ndefinitions)
 	    {
-	      std::cerr << "too many definitions\n";
+	      cerr << "too many definitions\n";
 	      return wrong_format;
 	    }
 
@@ -251,12 +251,12 @@ EST_read_status EST_TNamedEnum<ENUM>::priv_load(EST_String name, EST_TNamedEnum<
 	{
 	  // parameter
 
-	  size_t mlen;
+	  int mlen;
 	  int eq = line.search("=", 1, mlen);
 
 	  if (eq <0)
 	    {
-	      std::cerr << "bad header line '" << line;
+	      cerr << "bad header line '" << line;
 	      return wrong_format;
 	    }
 
@@ -284,7 +284,7 @@ EST_read_status EST_TNamedEnum<ENUM>::priv_load(EST_String name, EST_TNamedEnum<
 	    }
 	  else
 	    {
-	      std::cerr << "bad header line '" << line;
+	      cerr << "bad header line '" << line;
 	      return wrong_format;
 	    }
 	  

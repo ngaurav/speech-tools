@@ -35,6 +35,7 @@
 #define __EST_TRACKMAP_H__
 
 #include <climits>
+using namespace std;
 
 #include "EST_TNamedEnum.h"
 #include "EST_ChannelType.h"
@@ -155,7 +156,7 @@ public:
   const EST_TrackMap * object_ptr() const { return this; }
 
   friend class EST_Track;
-  friend std::ostream& operator << (std::ostream &st, const EST_TrackMap &m);
+  friend ostream& operator << (ostream &st, const EST_TrackMap &m);
 };
 
 /** Channel name maps map textual names for track channels to symbolic
@@ -173,5 +174,5 @@ extern EST_ChannelNameMap EST_default_channel_names;
 /// Definition of the names ESPS programs use for channels.
 extern EST_ChannelNameMap esps_channel_names;
 
-extern std::ostream& operator << (std::ostream &st, const EST_TrackMap &m);
+extern ostream& operator << (ostream &st, const EST_TrackMap &m);
 #endif

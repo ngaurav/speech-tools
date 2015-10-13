@@ -38,7 +38,7 @@ const char8 *DefaultTypeName[DT_enum_count] = {
     "#required",
     "bogus1",
     "#implied",
-    "bogus2",
+    "bogus2"
     "none",
     "#fixed",
 };
@@ -187,10 +187,8 @@ Entity NewExternalEntityN(const Char *name, int namelen, const char8 *publicid,
 
     if(!(e = Malloc(sizeof(*e))))
 	return 0;
-    if(name && !(name = Strndup(name, namelen))) {
-        Free(e);
+    if(name && !(name = Strndup(name, namelen)))
 	    return 0;
-    }
 
     e->type = ET_external;
     e->name = name;
@@ -221,14 +219,10 @@ Entity NewInternalEntityN(const Char *name, int namelen,
     Entity e;
 
     if(!(e = Malloc(sizeof(*e))))
-        return 0;
-
-    if(name) {
-        if(!(name = Strndup(name, namelen))) {
-            Free(e);
-            return 0;
-        }
-    }
+	return 0;
+    if(name)
+	if(!(name = Strndup(name, namelen)))
+	    return 0;
 
     e->type = ET_internal;
     e->name = name;
@@ -406,13 +400,8 @@ ElementDefinition DefineElementN(Dtd dtd, const Char *name, int namelen,
 #else
     ElementDefinition e;
 
-    if(!(e = Malloc(sizeof(*e))) )
-        return 0;
-
-    if(!(name = Strndup(name, namelen))) {
-        Free(e);
-        return 0;
-    }
+    if(!(e = Malloc(sizeof(*e))) || !(name = Strndup(name, namelen)))
+	return 0;
 
     e->tentative = 0;
     e->name = name;
@@ -446,13 +435,8 @@ ElementDefinition TentativelyDefineElementN(Dtd dtd,
 #else
     ElementDefinition e;
 
-    if(!(e = Malloc(sizeof(*e))) )
-        return 0;
-
-    if(!(name = Strndup(name, namelen))) {
-        Free(e);
-        return 0;
-    }
+    if(!(e = Malloc(sizeof(*e))) || !(name = Strndup(name, namelen)))
+	return 0;
 
     e->tentative = 1;
     e->name = name;
@@ -613,13 +597,8 @@ AttributeDefinition
 #else
     AttributeDefinition a;
 
-    if(!(a = Malloc(sizeof(*a))) )
-        return 0;
-
-    if(!(name = Strndup(name, namelen))) {
-        Free(a);
-        return 0;
-    }
+    if(!(a= Malloc(sizeof(*a))) || !(name = Strndup(name, namelen)))
+	return 0;
 
     a->name = name;
     a->namelen = namelen;
@@ -714,13 +693,8 @@ NotationDefinition DefineNotationN(Dtd dtd, const Char *name, int namelen,
 {
     NotationDefinition n;
 
-    if(!(n = Malloc(sizeof(*n))) )
-		return 0;
-
-    if(!(name = Strndup(name, namelen))) {
-        Free(n);
-		return 0;
-    }
+    if(!(n = Malloc(sizeof(*n))) || !(name = Strndup(name, namelen)))
+	return 0;
 
     n->name = name;
     n->tentative = 1;
@@ -737,13 +711,8 @@ NotationDefinition TentativelyDefineNotationN(Dtd dtd,
 {
     NotationDefinition n;
 
-    if(!(n = Malloc(sizeof(*n))) )
-		return 0;
-
-    if(!(name = Strndup(name, namelen))) {
-        Free(n);
-		return 0;
-    }
+    if(!(n = Malloc(sizeof(*n))) || !(name = Strndup(name, namelen)))
+	return 0;
 
     n->name = name;
     n->tentative = 1;

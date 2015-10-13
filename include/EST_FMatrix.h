@@ -41,7 +41,6 @@
 #ifndef __FMatrix_H__
 #define __FMatrix_H__
 
-#include <cstdlib>
 #include "EST_TSimpleMatrix.h"
 #include "EST_TSimpleVector.h"
 
@@ -50,10 +49,8 @@
 
 class EST_FVector;
 
-/** @class EST_FMatrix
- *  @ingroup containerclasses
- * A matrix class for floating point numbers. EST_FMatrix x should be
-   used instead of float **x wherever possible.  
+/** A matrix class for floating point numbers. EST_FMatrix x should be
+ used instead of float **x wherever possible.  
 */
 
 class EST_FMatrix : public EST_TSimpleMatrix<float> {
@@ -82,8 +79,8 @@ public:
     /// Load from file in est format (binary/ascii defined in file itself)
     EST_read_status est_load(const EST_String &filename);
 
-    /// Copy 2-d array `x` of size `rows x cols` into matrix.
-    void copyin(float **x, ssize_t rows, ssize_t cols);
+    /// Copy 2-d array {\tt x} of size {\tt rows x cols} into matrix.
+    void copyin(float **x, int rows, int cols);
 
     /// Add elements of 2 same sized matrices.
     EST_FMatrix &operator+=(const EST_FMatrix &a);
@@ -97,7 +94,7 @@ public:
     /// elementwise divide by scalar
     EST_FMatrix &operator/=(const float f); 
 
-    /// Multiply all elements of matrix by `x`.
+    /// Multiply all elements of matrix by {\tt x}.
     friend EST_FMatrix operator*(const EST_FMatrix &a, const float x);
 
     /// Multiply matrix by vector.
@@ -110,16 +107,14 @@ public:
     friend EST_FMatrix operator*(const EST_FMatrix &a, const EST_FMatrix &b);
 };
 
-/** \class EST_FVector
- *  @ingroup containerclasses
- *  \brief A vector class for floating point numbers. 
-    `EST_FVector x` should be used instead of `float *x`
+/** A vector class for floating point numbers. 
+    {\tt EST_FVector x} should be used instead of {\tt float *x}
     wherever possible.
 */
 class EST_FVector: public EST_TSimpleVector<float> {
 public:
     /// Size constructor.
-    EST_FVector(ssize_t n): EST_TSimpleVector<float>(n) {}
+    EST_FVector(int n): EST_TSimpleVector<float>(n) {}
     /// Copy constructor.
     EST_FVector(const EST_FVector &a): EST_TSimpleVector<float>(a) {}
     /// Default constructor.
@@ -166,7 +161,7 @@ int pseudo_inverse(const EST_FMatrix &a, EST_FMatrix &inv,int &singularity);
 
 /// some useful matrix creators
 /// make an identity matrix of dimension n
-void eye(EST_FMatrix &a, const ssize_t n);
+void eye(EST_FMatrix &a, const int n);
 /// make already square matrix into I without resizing
 void eye(EST_FMatrix &a);
 
@@ -211,7 +206,7 @@ EST_FVector diagonal(const EST_FMatrix &a);
 /// sum of elements
 float sum(const EST_FMatrix &a);
 void multiply(const EST_FMatrix &a, const EST_FMatrix &b, EST_FMatrix &c);
-ssize_t  floor_matrix(EST_FMatrix &M, const float floor);
+int  floor_matrix(EST_FMatrix &M, const float floor);
 
 /// matrix product of two vectors (#rows = length of first vector, #cols = length of second vector)
 EST_FMatrix cov_prod(const EST_FVector &v1,const EST_FVector &v2);
@@ -223,11 +218,11 @@ EST_FMatrix operator+(const EST_FMatrix &a, const EST_FMatrix &b);
 EST_FVector operator-(const EST_FVector &a, const EST_FVector &b);
 EST_FVector operator+(const EST_FVector &a, const EST_FVector &b);
 
-EST_FMatrix sub(const EST_FMatrix &a, ssize_t row, ssize_t col);
+EST_FMatrix sub(const EST_FMatrix &a, int row, int col);
 EST_FMatrix fmatrix_abs(const EST_FMatrix &a);
 
-EST_FMatrix row(const EST_FMatrix &a, ssize_t row);
-EST_FMatrix column(const EST_FMatrix &a, ssize_t col);
+EST_FMatrix row(const EST_FMatrix &a, int row);
+EST_FMatrix column(const EST_FMatrix &a, int col);
 
 
 /// least squares fit

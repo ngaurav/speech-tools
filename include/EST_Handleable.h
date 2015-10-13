@@ -35,12 +35,8 @@
 #ifndef __EST_HANDLABLE_H__
 #define __EST_HANDLABLE_H__
 
-#include <climits>
-
-/** @class EST_Handleable
-  * @ingroup supportclasses
-  * @brief Reference Counting Interface.
-  * 
+/** Reference Counting Interface.
+  *
   * This simple class does most of the things an object which is to be
   * manipulated by EST_THandle style smart pointers needs to provide.
   * 
@@ -50,6 +46,11 @@
   * @author Richard Caley <rjc@cstr.ed.ac.uk>
   * @version $Id: EST_Handleable.h,v 1.4 2004/09/29 08:24:17 robert Exp $
   */
+
+#include <climits>
+
+using namespace std;
+
 class EST_Handleable
 {
 private:

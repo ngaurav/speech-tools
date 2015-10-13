@@ -41,8 +41,6 @@
 #include "EST_TDeque.h"
 #include "EST_String.h"
 
-using namespace std;
-
 
 /**@name EST_TDeque:example
   * 

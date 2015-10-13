@@ -41,8 +41,6 @@
 #include "EST_cutils.h"
 #include "EST_WFST.h"
 
-using namespace std;
-
 void EST_WFST::build_or_transition(int start, int end, LISP disjunctions)
 {
     // Choice of either disjunct

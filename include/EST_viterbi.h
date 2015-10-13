@@ -47,8 +47,7 @@
 #include "EST_Features.h"
 #include "ling_class/EST_Relation.h"
 
-/**  \class EST_VTCandidate
-     Internal class to \ref EST_Viterbi_Decoder used to a represent 
+/**  Internal class to \Ref{EST_Viterbi_Decoder} used to a represent 
      a candidate.
 
      These objects need to be created and set by the user of the Viterbi
@@ -59,7 +58,7 @@
 class EST_VTCandidate {
   private:
   public:
-    EST_VTCandidate() {score=0.0; next=0; s=0; pos=0; }
+    EST_VTCandidate() {score=0.0; next=0; s=0; }
     ~EST_VTCandidate() {if (next != 0) delete next;}
     float score;
     EST_Val name;
@@ -69,8 +68,7 @@ class EST_VTCandidate {
 };
 
 
-/**  \class EST_VTPath
-     Internal class to \ref EST_Viterbi_Decoder used to a represent 
+/**  Internal class to \Ref{EST_Viterbi_Decoder} used to a represent 
      a link in a path the candidates.
 
      @author Alan W Black (awb@cstr.ed.ac.uk): July 1996
@@ -78,7 +76,7 @@ class EST_VTCandidate {
 class EST_VTPath {
   private:
   public:
-    EST_VTPath() {score=0.0; from=0; next=0; c=0; state=0;}
+    EST_VTPath() {score=0.0; from=0; next=0; c=0;}
     ~EST_VTPath() {if (next != 0) delete next;}
     double score;   /* cumulative score for path */
     int state;
@@ -88,8 +86,7 @@ class EST_VTPath {
     EST_VTPath *next;
 };
 
-/**  \class EST_VTPoint 
-     Internal class to \ref EST_Viterbi_Decoder used to a node in
+/**  Internal class to \Ref{EST_Viterbi_Decoder used to a node in
      the decoder table
 
     @author Alan W Black (awb@cstr.ed.ac.uk): July 1996
@@ -112,8 +109,7 @@ typedef EST_VTCandidate *(*uclist_f_t)(EST_Item *s,EST_Features &f);
 typedef EST_VTPath *(*unpath_f_t)(EST_VTPath *p,EST_VTCandidate *c,
 				  EST_Features &f);
 
-/** \class EST_Viterbi_Decoder
-    \brief A class that offers a generalised Viterbi decoder.
+/** A class that offers a generalised Viterbi decoder.
 
     This class can be used to find the best path through a set
     of candidates based on likelihoods of the candidates and 
@@ -127,7 +123,7 @@ typedef EST_VTPath *(*unpath_f_t)(EST_VTPath *p,EST_VTCandidate *c,
     Although this offers a full Viterbi search it may also be used as
     a generalised beam search.
 
-    See `viterbi_main.cc` for an example of using this.
+    See {\tt viterbi_main.cc} for an example of using this.
 
     @author Alan W Black (awb@cstr.ed.ac.uk): July 1996
 */
@@ -157,7 +153,7 @@ class EST_Viterbi_Decoder {
     void vit_add_path(EST_VTPoint *p, EST_VTPath *np);
     void vit_add_paths(EST_VTPoint *p, EST_VTPath *np);
     EST_VTPath *find_best_end() const;
-    int betterthan(const float a,const float b) const;
+    const int betterthan(const float a,const float b) const;
     void prune_initialize(EST_VTPoint *p,
 			  double &best_score, double &best_candidate_score,
 			  double &score_cutoff, double &candidate_cutoff,
@@ -202,7 +198,7 @@ class EST_Viterbi_Decoder {
 
     bool vit_prune_path(double path_score, double score_cutoff);
 
-    /// Build the initial table from a \ref EST_Relation 
+    /// Build the initial table from a \Ref{EST_Relation}
     void initialise(EST_Relation *r);
 
     /// set beam widths for pruning
@@ -214,8 +210,8 @@ class EST_Viterbi_Decoder {
     /// Do the the actual search
     void search(void);
     /** Extract the result from the table and store it as a feature
-        on the related \ref EST_Item  in the given \ref EST_Relation 
-        named as `n`. Return FALSE if no path is found.
+        on the related \Ref{EST_Item} in the given \Ref{EST_Relation}
+        named as {\tt n}. Return FALSE if no path is found.
     */
     bool result(const EST_String &n);
 

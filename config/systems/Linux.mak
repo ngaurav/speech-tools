@@ -46,7 +46,7 @@ JAVAC=/usr/bin/javac
 JAVAH=/usr/bin/javah
 
 TCL_LIBRARY = -ltcl
-OS_LIBS = 
+OS_LIBS = -ldl 
 
 ## the native audio module for this type of system
 NATIVE_AUDIO_MODULE = LINUX16

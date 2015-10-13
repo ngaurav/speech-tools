@@ -6,13 +6,7 @@
 ##
 ##  Specific config file for local installation
 ##
-###########################################################################
-## Even though these variables are defined, this build system is not     ##
-## able to perform out of tree builds.                                   ##
-## Maybe in a future $(TOP) is replaced by these variables               ##
-TOP_BUILDDIR = @abs_top_builddir@
-TOP_SRCDIR = @abs_top_srcdir@
-##
+
 ###########################################################################
 ## Where the speech_tools tree will be installed.
 ## 
@@ -39,9 +33,9 @@ SYSTEM_TYPE=$(MACHINETYPE)_$(OSTYPE)$(OSREV)
 ###########################################################################
 ## Compiler.
 ## The definitions are in compilers/$(COMPILER).mak
-## Examples: gcc clang suncc
+## Examples: gcc suncc egcs gcc28
 
-COMPILER=@COMPILER@
+COMPILER=@COMPILERTYPE@
 
 ###########################################################################
 ## Java system to use if you include the Java interface.
@@ -60,25 +54,18 @@ CONFIGURATION =
 ###########################################################################
 ## Compilation options.
 ##
-## 
+## OPTIMISE=4 will turn off DEBUG
 
-# enable with OPTIMISE=3 (or any other optimization level)
-# OPTIMISE=4 will turn off DEBUG
-OPTIMISE=@OPTIMISE@
-# enable with WARN=1       
-WARN=@WARN@
-# enable with VERBOSE=1 
-VERBOSE=0
-# enable with DEBUG=1
-DEBUG=@DEBUG@
-# enable with PROFILE=gprof
-PROFILE=@PROFILE@
-# enable with SHARED=2
-SHARED=@SHARED@
+OPTIMISE=3
+WARN=1
+# VERBOSE=1
+#DEBUG=1
+# PROFILE=gprof
+#SHARED=2
 
 ## Directory specific selections which override the above
 
-#OPTIMISE_sigpr = 3
+OPTIMISE_sigpr = 3
 
 ###########################################################################
 ## Feature selection.
@@ -89,11 +76,11 @@ SHARED=@SHARED@
 ## various audio devices are supported directly but you can always
 ## specify a program to play files in a desired format.
 
-## NCD's network audio system. Write NAS_AUDIO to include it.
-INCLUDE_MODULES += @NAS_AUDIO@
+## NCD's network audio system.
+# INCLUDE_MODULES += NAS_AUDIO
 
-## PulseAudio sound server. Write PULSE_AUDIO to include it.
-INCLUDE_MODULES += @PULSE_AUDIO@
+## Elightenment Sound Demon, for KDE etc.
+# INCLUDE_MODULES += ESD_AUDIO
 
 ## Native audio for your platform (sun, linux, freebsd, irix, macosx, windows)
 INCLUDE_MODULES += NATIVE_AUDIO
@@ -158,21 +145,13 @@ INCLUDE_MODULES += RXP
 ## Efence protected malloc library to catch memory errors
 # INCLUDE_MODULES += EFENCE
 
-## Dmalloc, another checking malloc library
+## Dmalloc, another chekcing malloc library
 # INCLUDE_MODULES += DMALLOC
 
 ###################################################################
-## Documentation required tools
-## xsltproc (used for extracting a description of the parameters
-##           of the speech tools programs
-XSLTPROC = xsltproc
-
-## Doxygen:
-DOXYGEN = doxygen
-
-###################################################################
 ## Wrappers for selected EST Classes and functionality for
-## various high level scripted languages, such as Perl
+## various high level scripted languages, Only python is currently
+## supported
 
 ## Uncomment following to enable building of wrappers
 #INCLUDE_MODULES += WRAPPERS
@@ -186,18 +165,17 @@ DOXYGEN = doxygen
 ## Only set this if you *DO* want to run swig (for example to modify
 ## the wrappers yourself).  If so, the safest bet is to use the same
 ## version of swig as speech tools developers (download from
-## http://www.swig.org/ (SWIG-1.3.27 used here))
+## http://www.swig.org/ (SWIG-3.02 last tested))
 ##
 #CONFIG_SWIG_COMPILER = /usr/bin/swig
 
 
-# Languages to generate wrappers for. Currently: PYTHON and PERL5
-CONFIG_WRAPPER_LANGUAGES = PYTHON PERL5
+# Languages to generate wrappers for. Currently: PYTHON
+# PERL5 is no longer supported
+CONFIG_WRAPPER_LANGUAGES = PYTHON 
 
 # Language specific includes should be set to correct site paths
 CONFIG_PYTHON_INCLUDES= -I/usr/include/python2.2/
-CONFIG_PERL_INCLUDES= -I/usr/lib/perl5/5.8.3/i386-linux-thread-multi/CORE/
-#OR OLD#CONFIG_PERL_INCLUDES= -I/usr/lib/perl5/5.6.1/i386-linux/CORE/
 ##
 ###################################################################
 
@@ -219,8 +197,6 @@ ALSO_INCLUDE=
 include $(EST)/config/systems/$(SYSTEM_TYPE).mak
 
 include $(EST)/config/compilers/$(COMPILER).mak
-
-include $(EST)/config/user_flags.mak
 
 ifneq ($(JAVA_COMPILER),none)
     include $(EST)/config/compilers/$(JAVA_COMPILER).mak

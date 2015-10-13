@@ -50,8 +50,6 @@
 #include "EST_cutils.h"
 #include "EST_Token.h"
 
-using namespace std;
-
 int StrListtoFList(EST_StrList &s, EST_FList &f)
 {
     EST_Litem *p;
@@ -151,9 +149,9 @@ EST_write_status save_StrList(EST_String filename, EST_StrList &l,
     ostream *outf;
     EST_Litem *p;
     if (filename == "-")
-	  outf = &cout;
+	outf = &cout;
     else
-	  outf = new ofstream(filename);
+	outf = new ofstream(filename);
     
     if (!(*outf))
 	return write_fail;
@@ -177,8 +175,8 @@ EST_write_status save_StrList(EST_String filename, EST_StrList &l,
 	cerr << "Unknown style for writing StrLists: " << style << endl;
 	return misc_write_error;
     }
-    if (outf != &cout)
-        delete outf;
+
+    delete outf;
 
     return write_ok;
 }
@@ -193,10 +191,10 @@ int strlist_member(const EST_StrList &l,const EST_String &s)
     return FALSE;
 }
 
-long int strlist_index(const EST_StrList &l,const EST_String &s)
+int strlist_index(const EST_StrList &l,const EST_String &s)
 {
     EST_Litem *p;
-    ssize_t j=0;
+    int j=0;
     for (p = l.head(); p != 0; p = p->next())
     {
 	if (l.item(p) == s)
@@ -209,7 +207,7 @@ long int strlist_index(const EST_StrList &l,const EST_String &s)
 
 void StrList_to_StrVector(EST_StrList &l, EST_StrVector &v)
 {
-    ssize_t len,i;
+    int len,i;
 
     len = l.length();
     v.resize(len);
@@ -223,16 +221,16 @@ void StrList_to_StrVector(EST_StrList &l, EST_StrVector &v)
 
 void StrVector_to_StrList(EST_StrVector &v, EST_StrList &l)
 {
-    ssize_t i;
+    int i;
     l.clear();
     for (i=0;i<v.length();i++)
       l.append(v[i]);
 }
 
-/* FIXME: ssize_t is larger than long int because it is unsigned */
-long int StrVector_index(const EST_StrVector &v,const EST_String &s)
+
+int StrVector_index(const EST_StrVector &v,const EST_String &s)
 {
-    ssize_t i;
+    int i;
     for(i=0;i<v.length();i++)
 	if(v(i) == s)
 	    return i;

@@ -38,8 +38,7 @@
 #include "EST_Features.h"
 #include "EST_ServiceTable.h"
 
-/** \class EST_Server
-  * \brief Client-server interface. 
+/** Client-server interface. 
   *
   * An EST_Server object represents a server, it can be at either
   * end of a network connection. That is, a server process has an
@@ -50,6 +49,7 @@
   * @author Richard Caley <rjc@cstr.ed.ac.uk>
   * @version $Id: EST_Server.h,v 1.4 2004/05/04 00:00:16 awb Exp $
   */
+
 class EST_Server {
 
 public:

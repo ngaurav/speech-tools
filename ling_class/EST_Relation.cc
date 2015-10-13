@@ -44,8 +44,6 @@
 #include "ling_class/EST_Item.h"
 #include "relation_io.h"
 
-using namespace std;
-
 VAL_REGISTER_CLASS(relation,EST_Relation)
 
 EST_Relation::EST_Relation(const EST_String &name)
@@ -356,7 +354,7 @@ void EST_Relation::node_tidy_up_val(int &k, EST_Val &v)
     delete node;
 }
 
-void EST_Relation::node_tidy_up(ssize_t &k, EST_Item *node)
+void EST_Relation::node_tidy_up(int &k, EST_Item *node)
 {
     // Called to delete the nodes in the hash table when a load
     // fails
@@ -551,7 +549,7 @@ EST_read_status EST_Relation::load_items(EST_TokenStream &ts,
 	// failed to read this relation so clear the created nodes
 	// before returning, no idea what state the links are in so
 	// explicitly unlink them before deleting them
-      for(ssize_t ni=0; ni<nodenames.length(); ni++)
+      for(int ni=0; ni<nodenames.length(); ni++)
 	{
 	  EST_Item *node = nodenames(ni);
 	  if (node != NULL)
@@ -562,7 +560,7 @@ EST_read_status EST_Relation::load_items(EST_TokenStream &ts,
 }    
 
 EST_Item *EST_Relation::get_item_from_name(EST_THash<int,EST_Val> &nodenames,
-					   ssize_t name)
+					   int name)
 {
     // Return node named by name or create a new one if it doesn't
     // already exist
@@ -583,7 +581,7 @@ EST_Item *EST_Relation::get_item_from_name(EST_THash<int,EST_Val> &nodenames,
 }
 
 EST_Item *EST_Relation::get_item_from_name(EST_TVector< EST_Item * > &nodenames,
-					   ssize_t name)
+					   int name)
 {
     // Return node named by name or create a new one if it doesn't
     // already exist

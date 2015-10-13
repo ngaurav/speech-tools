@@ -219,7 +219,7 @@ const K &EST_TKVL<K, V>::key(const V &v, int must) const
 }
 
 template<class K, class V> 
-int EST_TKVL<K, V>::present(const K &rkey) const
+const int EST_TKVL<K, V>::present(const K &rkey) const
 { 
     if (find_pair_key(rkey) == 0)
 	return 0;

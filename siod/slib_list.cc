@@ -31,7 +31,7 @@ static LISP llength(LISP obj)
       if NNULLP(l) err("improper list to length",obj);
       return(flocons(n));
     default:
-      err("wrong type of argument to length",obj);}}
+      return(err("wrong type of argument to length",obj));}}
 
 LISP assoc(LISP x,LISP alist)
 {LISP l,tmp;
@@ -40,7 +40,7 @@ LISP assoc(LISP x,LISP alist)
     if (CONSP(tmp) && equal(CAR(tmp),x)) return(tmp);
     INTERRUPT_CHECK();}
  if EQ(l,NIL) return(NIL);
- err("improper list to assoc",alist);}
+ return(err("improper list to assoc",alist));}
 
 LISP assq(LISP x,LISP alist)
 {LISP l,tmp;
@@ -49,7 +49,7 @@ LISP assq(LISP x,LISP alist)
     if (CONSP(tmp) && EQ(CAR(tmp),x)) return(tmp);
     INTERRUPT_CHECK();}
  if EQ(l,NIL) return(NIL);
-  err("improper list to assq",alist);}
+ return(err("improper list to assq",alist));}
 
 LISP setcar(LISP cell, LISP value)
 {if NCONSP(cell) err("wrong type of argument to setcar",cell);
@@ -119,7 +119,7 @@ LISP car(LISP x)
     case tc_cons:
       return(CAR(x));
     default:
-      err("wrong type of argument to car",x);}}
+      return(err("wrong type of argument to car",x));}}
 
 LISP cdr(LISP x)
 {switch TYPE(x)
@@ -128,7 +128,7 @@ LISP cdr(LISP x)
     case tc_cons:
       return(CDR(x));
     default:
-      err("wrong type of argument to cdr",x);}}
+      return(err("wrong type of argument to cdr",x));}}
 
 LISP equal(LISP a,LISP b)
 {struct user_type_hooks *p;
@@ -137,7 +137,6 @@ LISP equal(LISP a,LISP b)
  loop:
  INTERRUPT_CHECK();
  if EQ(a,b) return(truth);
- if (a==NULL || b == NULL) return(NIL);
  atype = TYPE(a);
  if (atype != TYPE(b)) return(NIL);
  switch(atype)
@@ -161,7 +160,7 @@ LISP equal(LISP a,LISP b)
       return(NIL);
     default:
       p = get_user_type_hooks(atype);
-      if (p && p->equal)
+      if (p->equal)
 	return((*p->equal)(a,b));
       else if (p)  /* a user type */
 	  return ((USERVAL(a) == USERVAL(b)) ? truth : NIL);

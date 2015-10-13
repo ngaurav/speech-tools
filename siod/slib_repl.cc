@@ -39,8 +39,6 @@ Cambridge, MA 02138
 #include "siodp.h"
 #include "siodeditline.h"
 
-using namespace std;
-
 int siod_repl(int interactive)
 {
     int retval;

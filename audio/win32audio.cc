@@ -44,8 +44,6 @@
 #include "EST_io_aux.h"
 #include "EST_Pathname.h"
 
-using namespace std;
-
 #ifdef SUPPORT_WIN32AUDIO
 
 #include <EST_system.h>
@@ -64,11 +62,15 @@ using namespace std;
   #define WAVE_FORMAT_PCM     1
 */
 #include <windows.h>
+
+/* This is no longer required
 extern "C" {
 WINBOOL STDCALL PlaySoundA(LPCSTR  pszSound, HMODULE hmod, DWORD fdwSound);
 };
 
 #define PlaySound PlaySoundA
+*/
+
 #endif 
 
 int win32audio_supported = TRUE;

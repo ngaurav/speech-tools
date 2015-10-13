@@ -42,6 +42,7 @@ ALL_DIRS = # main_development
 BUILD_DIRS = 
 H = 
 TSRCS =	 
+OLD_BASESRCS = fringe_client_main.cc 
 BASESRCS = ch_lab_main.cc ch_track_main.cc ch_wave_main.cc \
            na_play_main.cc na_record_main.cc \
            sigfilter_main.cc sig2fv_main.cc spectgen_main.cc \
@@ -62,7 +63,7 @@ EXTRASRCS = wagon_main.cc wagon_test_main.cc \
             scfg_parse_main.cc \
             wfst_build_main.cc wfst_run_main.cc wfst_train_main.cc \
             siod_main.cc \
-            xml_parser_main.cc program_main.cc
+            xml_parser_main.cc
 
 
 CPPSRCS = $(MAINSRCS) $(TSRCS) $(EXTRASRCS)

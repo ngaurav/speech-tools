@@ -44,23 +44,25 @@
 #include "EST_speech_class.h"
 #include "EST_Event.h"
 
-/**@defgroup tiltfunctions Tilt functions
+/**@name Tilt functions
 
 Functions for:
-
-  - Generating RFC and Tilt parameters from F0 contours
-  - Converting RFC to Tilt parameters and vice-versa
-  - Synthesizing F0 contours from RFC and Tilt events
+<itemizedlist>
+<listitem><para>Generating RFC and Tilt parameters from F0 contours</para></listitem>
+<listitem><para>Converting RFC to Tilt parameters and vice-versa</para></listitem>
+<listitem><para>Synthesizing F0 contours from RFC and Tilt events</para></listitem>
+</itemizedlist>
 
 */
-///@{
+//@{
 
 /** Fill op with sensible default parameters for RFC analysis.
  */
 void default_rfc_params(EST_Features &op);
 
 /** Produce a set of RFC parameterized events given approximate event
-    boundaries and a smoothed F0 contour. See \ref ov-rfc-analysis for a description of this process.
+    boundaries and a smoothed F0 contour. See <xref
+    linkend="ov-rfc-analysis"> for a description of this process.
 
     @param f0: Smoothed continuous F0 contour. An error will occur
     if any unvoiced regions are detected in the contour. Use the
@@ -71,86 +73,100 @@ void default_rfc_params(EST_Features &op);
     @param op: parameters used to control analysis process.
     
  */
+
 void rfc_analysis(EST_Track &fz, EST_Relation &event_list, EST_Features &op);
-
-/** \brief Fill op with sensible default parameters for RFC analysis 
- */
-void tilt_analysis(EST_Track &fz, EST_Relation &event_list, EST_Features &op);
-
 /** Fill op with sensible default parameters for RFC analysis 
  */
+
+void tilt_analysis(EST_Track &fz, EST_Relation &event_list, EST_Features &op);
+/** Fill op with sensible default parameters for RFC analysis 
+ */
+
+
 void fill_rise_fall_values(EST_Track &fz, float amp, float start_f0);
 
-/** \brief Generate an F0 contour given a list RFC events.
+/** Generate an F0 contour given a list RFC events.
 
-@param f0 Generated F0 contour
-@param ev_list list of events, each containing a set of RFC parameters
-@param f_shift frame shift in seconds of the generated contour
-@param no_conn Do not join events with straight lines if set to 1
+@param f0: Generated F0 contour
+@param ev_list: list of events, each containing a set of RFC parameters
+@param f_shift: frame shift in seconds of the generated contour
+@param no_conn: Do not join events with straight lines if set to 1
 */
+
 void rfc_synthesis(EST_Track &f0, EST_Relation &ev_list,
 		 float f_shift, int no_conn);
 
-/** \brief Generate an F0 contour given a list Tilt events.
+/** Generate an F0 contour given a list Tilt events.
 
-This function simply calls \ref tilt_to_rfc  followed by \ref rfc_synthesis .
+This function simply calls \Ref{tilt_to_rfc} followed by \Ref{rfc_synthesis}.
 
-@param f0 Generated F0 contour
-@param ev_list list of events, each containing a set of Tilt parameters
-@param f_shift frame shift in seconds of the generated contour
-@param no_conn Do not join events with straight lines if set to 1
+@param f0: Generated F0 contour
+@param ev_list: list of events, each containing a set of Tilt parameters
+@param f_shift: frame shift in seconds of the generated contour
+@param no_conn: Do not join events with straight lines if set to 1
 */
+
 void tilt_synthesis(EST_Track &track, EST_Relation &ev_list,
 		 float f_shift, int no_conn);
 
-/** \brief Convert a single set of local tilt parameters to local RFC parameters.
+/** Convert a single set of local tilt parameters to local RFC parameters.
+<parameter>amp</parameter>
 
-@param tilt input tilt parameters, named `amp`, `dur` and `tilt`
-@param rfc output RFC parameters, name `rise_amp`, `fall_amp`, `rise_dur` and `fall_dur`
+@param tilt: input tilt parameters, named <parameter>amp</parameter>, <parameter>dur</parameter> and <parameter>tilt</parameter>
+@param rfc: output RFC parameters, name <parameter>rise_amp</parameter>, <parameter>fall_amp</parameter>, <parameter>rise_dur</parameter> and <parameter>fall_dur</parameter>
 
 */
 void tilt_to_rfc(EST_Features &tilt, EST_Features &rfc);
 
-/** \brief Convert a single set of local RFC parameters to local tilt
-parameters. See \ref ov-rfc-to-tilt for a description of
+/** Convert a single set of local RFC parameters to local tilt
+parameters. See <xref linkend="ov-rfc-to-tilt"> for a description of
 how this is performed.
 
-@param rfc input RFC parameters, named ` rise_amp`, `fall_amp`, `rise_dur` and` fall_dur`
-@param tilt output tilt parameters, named `amp`, `dur` and `tilt` */
+<parameter>
+@param rfc: input RFC parameters, named <parameter> rise_amp</parameter>, <parameter>fall_amp</parameter>, <parameter>rise_dur</parameter> and<parameter> fall_dur</parameter>
+@param tilt: output tilt parameters, named <parameter>amp</parameter>, <parameter>dur</parameter> and <parameter>tilt</parameter> */
 void rfc_to_tilt(EST_Features &rfc, EST_Features &tilt);
 
-/** For each tilt events in `ev_tilt`, produce a set of RFC parameters.
+/** For each tilt events in ev_tilt, produce a set of RFC parameters.
     The tilt parameters are stored as the following features in the event:
 
-  - tilt.amp
-  - tilt.dur
-  - tilt.tilt
+<ITEMIZEDLIST MARK="bullet" SPACING="compact">
+<LISTITEM>tilt.amp
+<LISTITEM>tilt.dur
+<LISTITEM>tilt.tilt
+</itemizedlist>
 
     A set of features with the following names are created:
 
-
-  - rfc.rise_amp
-  - rfc.rise_dur
-  - rfc.fall_amp
-  - rfc.fall_dur
+<ITEMIZEDLIST MARK="bullet" SPACING="compact">
+<LISTITEM>rfc.rise_amp</listitem>
+<LISTITEM>rfc.rise_dur</listitem>
+<LISTITEM>rfc.fall_amp</listitem>
+<LISTITEM>rfc.fall_dur</listitem>
+</itemizedlist>
 
     The original tilt features are not deleted.
+    
 */
 void tilt_to_rfc(EST_Relation &ev_tilt);
 
-/** \brief  For each tilt events in `ev_rfc`, produce a set of Tiltparameters.
+/** For each tilt events in ev_rfc, produce a set of Tiltparameters.
     The RFC parameters are stored as the following features in the event:
 
-  - rfc.rise_amp
-  - rfc.rise_dur
-  - rfc.fall_amp
-  - rfc.fall_dur
+<ITEMIZEDLIST MARK="bullet" SPACING="compact">
+<LISTITEM>rfc.rise_amp</listitem>
+<LISTITEM>rfc.rise_dur</listitem>
+<LISTITEM>rfc.fall_amp</listitem>
+<LISTITEM>rfc.fall_dur</listitem>
+</itemizedlist>
 
     A set of features with the following names are created:
 
-  - tilt.amp
-  - tilt.dur
-  - tilt.tilt
+<ITEMIZEDLIST MARK="bullet" SPACING="compact">
+<LISTITEM>tilt.amp
+<LISTITEM>tilt.dur
+<LISTITEM>tilt.tilt
+</itemizedlist>
 
     The original RFC features are not deleted.
     
@@ -160,7 +176,7 @@ void rfc_to_tilt(EST_Relation &ev_rfc);
 int validate_rfc_stream(EST_Relation &ev);
 void fill_rfc_types(EST_Relation &ev);
 
-///@}
+//@}
 
 
 

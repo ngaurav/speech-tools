@@ -46,7 +46,6 @@
 #include "EST_Wagon.h"
 #include "EST_math.h"
 
-using namespace std;
 
 EST_Val WNode::predict(const WVector &d)
 {
@@ -93,14 +92,13 @@ void WNode::prune(void)
 
 	// Have to check purity as well as values to ensure left and right
 	// don't further split
-	if ((left  != 0) && (left->pure()  == TRUE) && 
-        (right != 0)  && (right->pure() == TRUE) &&
+	if ((left->pure() == TRUE) && ((right->pure() == TRUE)) &&
 	    (left->get_impurity().value() == right->get_impurity().value()))
 	{
 	     delete left; left = 0;
 	     delete right; right = 0;
 	}
-    }
+    }    
 
 }
 
@@ -260,7 +258,7 @@ void WDataSet::load_description(const EST_String &fname, LISP ignores)
     }
 }
 
-int WQuestion::ask(const WVector &w) const
+const int WQuestion::ask(const WVector &w) const
 {
     // Ask this question of the given vector
     switch (op)
@@ -404,7 +402,6 @@ double WImpurity::samples(void)
 WImpurity::WImpurity(const WVectorVector &ds)
 {
     int i;
-    score = NAN;
 
     t=wnim_unset;
     a.reset(); trajectory=0; l=0; width=0;
@@ -450,17 +447,16 @@ float WImpurity::vector_impurity()
     // sum the variances and multiply them by the number of members
     EST_Litem *pp;
     EST_Litem *countpp;
-    ssize_t i,j;
+    int i,j;
     EST_SuffStats b;
     double count = 1;
-
+    
     a.reset();
-
 #if 1
     /* simple distance */
     for (j=0; j<wgn_VertexFeats.num_channels(); j++)
     {
-        if (wgn_VertexFeats.a(static_cast<ssize_t>(0),j) > 0.0)
+        if (wgn_VertexFeats.a(0,j) > 0.0)
         {
             b.reset();
             for (pp=members.head(), countpp=member_counts.head(); pp != 0; pp=pp->next(), countpp=countpp->next())
@@ -474,6 +470,56 @@ float WImpurity::vector_impurity()
             count = b.samples();
         }
     }
+#endif
+
+#if 0
+    EST_SuffStats *c;
+    float x, lshift, rshift, ushift;
+    /* Find base mean, then measure do fshift to find best match */
+    c = new EST_SuffStats[wgn_VertexTrack.num_channels()+1];
+    for (j=0; j<wgn_VertexFeats.num_channels(); j++)
+    {
+        if (wgn_VertexFeats.a(0,j) > 0.0)
+        {
+            c[j].reset();
+            for (pp=members.head(), countpp=member_counts.head(); pp != 0; 
+                 pp=pp->next(), countpp=countpp->next())
+            {
+                i = members.item(pp);
+		// Accumulate the value with count
+                c[j].cumulate(wgn_VertexTrack.a(i,j),member_counts.item(countpp));
+            }
+            count = c[j].samples();
+        }
+    }
+
+    /* Pass through again but vary the num_channels offset (hardcoded) */
+    for (pp=members.head(), countpp=member_counts.head(); pp != 0; 
+         pp=pp->next(), countpp=countpp->next())
+    {
+        int q;
+        float bshift, qshift;
+        /* For each sample */
+        i = members.item(pp);
+        /* Find the value left shifted, unshifted, and right shifted */
+        lshift = 0; ushift = 0; rshift = 0;
+        bshift = 0;
+        for (q=-20; q<=20; q++)
+        {
+            qshift = 0;
+            for (j=67+q; j<147+q/*hardcoded*/; j++)
+            {
+                x = c[j].mean() - wgn_VertexTrack(i,j);
+                qshift += sqrt(x*x);
+                if ((bshift > 0) && (qshift > bshift))
+                    break;
+            }
+            if ((bshift == 0) || (qshift < bshift))
+                bshift = qshift;
+        }
+        a += bshift;
+    }
+    
 #endif
 
 #if 0
@@ -568,9 +614,8 @@ float WImpurity::trajectory_impurity()
     // impurity is sum of the variance for each point and each coef
     // multiplied by the number of units.
     EST_Litem *pp;
-    ssize_t i, j;
-    int ti;
-    ssize_t s, q, ni;
+    int i, j;
+    int s, ti, ni, q;
     int s1l, s2l;
     double n, m, m1, m2, w;
     EST_SuffStats lss, stdss;
@@ -590,7 +635,7 @@ float WImpurity::trajectory_impurity()
         i = members.item(pp);
         for (q=0; q<wgn_UnitTrack.a(i,1); q++)
         {
-            ni = wgn_UnitTrack.a(i,0)+q;
+            ni = (int)wgn_UnitTrack.a(i,0)+q;
             if (wgn_VertexTrack.a(ni,0) == -1.0)
             {
                 l1ss += q;
@@ -623,14 +668,14 @@ float WImpurity::trajectory_impurity()
         for (pp=members.head(); pp != 0; pp=pp->next())
         {   /* for each unit */
             i = members.item(pp);
-            m = (float)wgn_UnitTrack.a(i,1L)/(float)l; /* find interpolation */
-            s = wgn_UnitTrack.a(i,0); /* start point */
+            m = (float)wgn_UnitTrack.a(i,1)/(float)l; /* find interpolation */
+            s = (int)wgn_UnitTrack.a(i,0); /* start point */
             for (ti=0,n=0.0; ti<l; ti++,n+=m)
             {
                 ni = (int)n;  // hmm floor or nint ??
                 for (j=0; j<wgn_VertexFeats.num_channels(); j++)
                 {
-                    if (wgn_VertexFeats.a(static_cast<ssize_t>(0),j) > 0.0)
+                    if (wgn_VertexFeats.a(0,j) > 0.0)
                         trajectory[ti][j] += wgn_VertexTrack.a(s+ni,j);
                 }
             }
@@ -641,7 +686,7 @@ float WImpurity::trajectory_impurity()
         for (ti=0; ti<l; ti++)
             for (j=0; j<wgn_VertexFeats.num_channels(); j++)
             {
-                if (wgn_VertexFeats.a(static_cast<ssize_t>(0),j) > 0.0)
+                if (wgn_VertexFeats.a(0,j) > 0.0)
                     stdss += trajectory[ti][j].stddev();
             }
 
@@ -663,7 +708,7 @@ float WImpurity::trajectory_impurity()
         {   /* for each unit */
             i = members.item(pp);
             s1l = 0;
-            s = wgn_UnitTrack.a(i,0); /* start point */
+            s = (int)wgn_UnitTrack.a(i,0); /* start point */
             for (q=0; q<wgn_UnitTrack.a(i,1); q++)
                 if (wgn_VertexTrack.a(s+q,0) == -1.0)
                 {
@@ -678,12 +723,12 @@ float WImpurity::trajectory_impurity()
             {
                 ni = s + (((int)n < s1l) ? (int)n : s1l - 1);
                 for (j=0; j<wgn_VertexFeats.num_channels(); j++)
-                    if (wgn_VertexFeats.a(static_cast<ssize_t>(0),j) > 0.0)
+                    if (wgn_VertexFeats.a(0,j) > 0.0)
                         trajectory[ti][j] += wgn_VertexTrack.a(ni,j);
             }
             ti = l1; /* do it explicitly in case s1l < 1 */
             for (j=0; j<wgn_VertexFeats.num_channels(); j++)
-                if (wgn_VertexFeats.a(static_cast<ssize_t>(0),j) > 0.0)
+                if (wgn_VertexFeats.a(0,j) > 0.0)
                     trajectory[ti][j] += -1;
             /* Second half */
             s += s1l+1;
@@ -691,11 +736,11 @@ float WImpurity::trajectory_impurity()
             {
                 ni = s + (((int)n < s2l) ? (int)n : s2l - 1);
                 for (j=0; j<wgn_VertexFeats.num_channels(); j++)
-                    if (wgn_VertexFeats.a(static_cast<ssize_t>(0),j) > 0.0)
+                    if (wgn_VertexFeats.a(0,j) > 0.0)
                         trajectory[ti][j] += wgn_VertexTrack.a(ni,j);
             }
             for (j=0; j<wgn_VertexFeats.num_channels(); j++)
-                if (wgn_VertexFeats.a(static_cast<ssize_t>(0),j) > 0.0)
+                if (wgn_VertexFeats.a(0,j) > 0.0)
                     trajectory[ti][j] += -2;
         }
 
@@ -705,12 +750,12 @@ float WImpurity::trajectory_impurity()
         m = 1.0/(float)l1;
         for (w=0.0,ti=0; ti<l1; ti++,w+=m)
             for (j=0; j<wgn_VertexFeats.num_channels(); j++)
-                if (wgn_VertexFeats.a(static_cast<ssize_t>(0),j) > 0.0)
+                if (wgn_VertexFeats.a(0,j) > 0.0)
                 stdss += trajectory[ti][j].stddev() * w;
         m = 1.0/(float)l2;
         for (w=1.0,ti++; ti<l-1; ti++,w-=m)
             for (j=0; j<wgn_VertexFeats.num_channels(); j++)
-                if (wgn_VertexFeats.a(static_cast<ssize_t>(0),j) > 0.0)
+                if (wgn_VertexFeats.a(0,j) > 0.0)
                     stdss += trajectory[ti][j].stddev() * w;
     
         // This is sum of all stddev * samples
@@ -801,7 +846,7 @@ float WImpurity::ols_impurity()
     ols_test(Y,pred,cor,rmse);
     best_score = cor;
 
-    printf("Impurity OLS X(%zd,%zd) Y(%zd,%zd) %f, %f, %f\n",
+    printf("Impurity OLS X(%d,%d) Y(%d,%d) %f, %f, %f\n",
              X.num_rows(),X.num_columns(),Y.num_rows(),Y.num_columns(),
              rmse,cor,
              1-best_score);
@@ -964,7 +1009,7 @@ void WImpurity::cumulate(const float pv,double count)
 
 ostream & operator <<(ostream &s, WImpurity &imp)
 {
-    ssize_t j,i;
+    int j,i;
     EST_SuffStats b;
 
     if (imp.t == wnim_float)
@@ -982,7 +1027,7 @@ ostream & operator <<(ostream &s, WImpurity &imp)
                 for (p=imp.members.head(), countp=imp.member_counts.head(); p != 0; p=p->next(), countp=countp->next())
                 {
 		  // Accumulate the members with their counts
-		  b.cumulate(wgn_VertexTrack.a((ssize_t)imp.members.item(p),j), imp.member_counts.item(countp));
+		  b.cumulate(wgn_VertexTrack.a(imp.members.item(p),j), imp.member_counts.item(countp));
 		  //b += wgn_VertexTrack.a(imp.members.item(p),j);
                 }
                 s << "(" << b.mean() << " ";
@@ -999,27 +1044,27 @@ ostream & operator <<(ostream &s, WImpurity &imp)
             /* print out vector closest to center, rather than average */
             double best = WGN_HUGE_VAL;
             double x,d;
-            ssize_t bestp = 0;
+            int bestp = 0;
             EST_SuffStats *cs;
 
             cs = new EST_SuffStats [wgn_VertexTrack.num_channels()+1];
             
             for (j=0; j<wgn_VertexFeats.num_channels(); j++)
-                if (wgn_VertexFeats.a(static_cast<ssize_t>(0),j) > 0.0)
+                if (wgn_VertexFeats.a(0,j) > 0.0)
                 {
                     cs[j].reset();
                     for (p=imp.members.head(); p != 0; p=p->next())
                     {
-                        cs[j] += wgn_VertexTrack.a((ssize_t)imp.members.item(p),j);
+                        cs[j] += wgn_VertexTrack.a(imp.members.item(p),j);
                     }
                 }
 
             for (p=imp.members.head(); p != 0; p=p->next())
             {
                 for (x=0.0,j=0; j<wgn_VertexFeats.num_channels(); j++)
-                    if (wgn_VertexFeats.a(static_cast<ssize_t>(0),j) > 0.0)
+                    if (wgn_VertexFeats.a(0,j) > 0.0)
                     {
-                        d = (wgn_VertexTrack.a((ssize_t)imp.members.item(p),j)-cs[j].mean())
+                        d = (wgn_VertexTrack.a(imp.members.item(p),j)-cs[j].mean())
                             /* / cs[j].stddev() */ ; /* seems worse 061218 */
                         x += d*d;
                     }

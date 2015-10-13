@@ -54,14 +54,14 @@ DOXFILES = $(addsuffix _man.dox, $(PROGRAMS))
 XSLT_FILES = convert-options.xslt convert-synopsis.xslt
 SCRIPTS = create_dox.sh
 
-FILES = $(BODYFILES) $(XSLT_FILES) $(SCRIPTS) Makefile
+FILES = Makefile $(BODYFILES) $(XSLT_FILES) $(SCRIPTS)
 
 LOCAL_CLEAN = $(DOXFILES)
 
 -include $(TOP)/config/common_make_rules
 
 %_man.dox: %_man.dox.body
-	LD_LIBRARY_PATH=$(TOP_BUILDDIR)/lib ./create_dox.sh $(TOP_BUILDDIR)/main/$* $@.body || exit 1
+	./create_dox.sh $(TOP)/main/$* $@.body || exit 1
 
 all_dox: $(DOXFILES)
 

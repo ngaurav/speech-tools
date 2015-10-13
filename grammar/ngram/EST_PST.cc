@@ -48,8 +48,6 @@
 #include "EST_PST.h"
 #include "EST_multistats.h"
 
-using namespace std;
-
 VAL_REGISTER_CLASS(pstnode,EST_PredictionSuffixTree_tree_node)
 
 // Out of vocabulary identifier

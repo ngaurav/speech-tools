@@ -47,15 +47,13 @@
 #include "ling_class/EST_FeatureFunctionPackage.h"
 #include "EST_FeatureFunctionContext.h"
 
-using namespace std;
-
 const char *error_name(EST_Item_featfunc f)
 {
   (void)f;
   return "<<EST_Item_featfunc>>";
 }
 
-EST_Item_featfunc get_featfunc(const EST_String &name,int must)
+const EST_Item_featfunc get_featfunc(const EST_String &name,int must)
 {
     const EST_Item_featfunc f = EST_FeatureFunctionContext::global->get_featfunc(name, must);
 
@@ -97,7 +95,7 @@ void EST_register_feature_function_package(const char *name,
 /* EST_Item_featfuncs aren't a class so we can't use the standard */
 /* registration procedure and have to explicitly write it         */
 val_type val_type_featfunc = "featfunc";
-EST_Item_featfunc featfunc(const EST_Val &v)
+const EST_Item_featfunc featfunc(const EST_Val &v)
 {
     if (v.type() == val_type_featfunc)
 	return (const EST_Item_featfunc)v.internal_ptr();
@@ -111,13 +109,10 @@ void val_delete_featfunc(void *v)
     (void)v;
 }
 
-/* Sergio Oller: Comment it out: unused. Did you mean *v1 = *v2? */
-#if 0
 void val_copy_featfunc(void *v1,void *v2)
 {
     v1 = v2;
 }
-#endif
 
 EST_Val est_val(const EST_Item_featfunc f)
 {

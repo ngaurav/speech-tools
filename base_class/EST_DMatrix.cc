@@ -41,7 +41,6 @@
 #include <cstdlib>
 #include <cstdio>
 #include <fstream>
-#include <sstream>
 #include <cmath>
 #include <climits>
 #include "EST_String.h"
@@ -52,8 +51,6 @@
 #include "EST_cutils.h"  // for swap functions 
 #include "EST_Token.h"
 #include "rateconv.h"
-
-using namespace std;
 
 EST_String EST_DMatrix::default_file_type = "est_ascii";
 
@@ -69,7 +66,7 @@ EST_DMatrix::EST_DMatrix(const EST_DMatrix &a, int b)
 
 EST_DMatrix & EST_DMatrix::operator+=(const EST_DMatrix &a)
 {
-    ssize_t i, j;
+    int i, j;
     if (a.num_columns() != num_columns())
     {
 	cerr <<"Matrix addition error: bad number of columns\n";
@@ -89,7 +86,7 @@ EST_DMatrix & EST_DMatrix::operator+=(const EST_DMatrix &a)
 
 EST_DMatrix & EST_DMatrix::operator-=(const EST_DMatrix &a)
 {
-    ssize_t i, j;
+    int i, j;
     if (a.num_columns() != num_columns())
     {
 	cerr <<"Matrix subtraction error: bad number of columns\n";
@@ -110,7 +107,7 @@ EST_DMatrix & EST_DMatrix::operator-=(const EST_DMatrix &a)
 EST_DMatrix & EST_DMatrix::operator*=(const double f)
 {
 
-    ssize_t i,j;
+    int i,j;
     for (i = 0; i < num_rows(); ++i)
 	for (j = 0; j < num_columns(); ++j)
 	    a_no_check(i, j) *= f;
@@ -121,7 +118,7 @@ EST_DMatrix & EST_DMatrix::operator*=(const double f)
 EST_DMatrix & EST_DMatrix::operator/=(const double f)
 {
 
-    ssize_t i,j;
+    int i,j;
     for (i = 0; i < num_rows(); ++i)
 	for (j = 0; j < num_columns(); ++j)
 	    a_no_check(i, j) /= f;
@@ -132,7 +129,7 @@ EST_DMatrix & EST_DMatrix::operator/=(const double f)
 EST_DMatrix operator+(const EST_DMatrix &a, const EST_DMatrix &b)
 {
     EST_DMatrix ab;
-    ssize_t i, j;
+    int i, j;
     if (a.num_columns() != b.num_columns())
     {
 	cerr <<"Matrix addition error: bad number of columns\n";
@@ -154,7 +151,7 @@ EST_DMatrix operator+(const EST_DMatrix &a, const EST_DMatrix &b)
 EST_DMatrix operator-(const EST_DMatrix &a,const EST_DMatrix &b)
 {
     EST_DMatrix ab;
-    ssize_t i, j;
+    int i, j;
 
     if (a.num_columns() != b.num_columns())
     {
@@ -175,15 +172,10 @@ EST_DMatrix operator-(const EST_DMatrix &a,const EST_DMatrix &b)
     return ab;
 }
 
-EST_DMatrix operator*(const double x, const EST_DMatrix &a)
-{
-    return a*x;
-}
-
 EST_DMatrix operator*(const EST_DMatrix &a, const double x)
 {
     EST_DMatrix b(a, 0);
-    ssize_t i, j;
+    int i, j;
 
     for (i = 0; i < a.num_rows(); ++i)
 	for (j = 0; j < a.num_columns(); ++j)
@@ -207,7 +199,7 @@ EST_DVector operator*(const EST_DMatrix &a, const EST_DVector &v)
 	return b;
     }
 
-    ssize_t i, j;
+    int i, j;
     for (i = 0; i < a.num_rows(); ++i){
 	b[i] = 0.0;
 	for (j = 0; j < a.num_columns(); ++j)
@@ -219,7 +211,7 @@ EST_DVector operator*(const EST_DMatrix &a, const EST_DVector &v)
 EST_DVector operator+(const EST_DVector &a, const EST_DVector &b)
 {
     EST_DVector ab;
-    ssize_t i;
+    int i;
     if (a.length() != b.length())
     {
 	cerr <<"Vector addition error: mismatched lengths\n";
@@ -236,7 +228,7 @@ EST_DVector operator+(const EST_DVector &a, const EST_DVector &b)
 EST_DVector operator-(const EST_DVector &a, const EST_DVector &b)
 {
     EST_DVector ab;
-    ssize_t i;
+    int i;
     if (a.length() != b.length())
     {
 	cerr <<"Vector subtraction error: mismatched lengths\n";
@@ -266,7 +258,7 @@ EST_DVector operator*(const EST_DVector &v,const EST_DMatrix &a)
 	return b;
     }
 
-    ssize_t i, j;
+    int i, j;
     for (j = 0; j < a.num_columns(); ++j){
 	b[j] = 0.0;
 	for (i = 0; i < a.num_rows(); ++i)
@@ -300,7 +292,7 @@ void multiply(const EST_DMatrix &a, const EST_DMatrix &b, EST_DMatrix &ab)
     }
 
     ab.resize(a.num_rows(), b.num_columns());
-    ssize_t i, j, k, n;
+    int i, j, k, n;
     n = a.num_columns();	// could also be b.num_rows()
     
     for (i = 0; i < a.num_rows(); ++i)
@@ -313,9 +305,9 @@ void multiply(const EST_DMatrix &a, const EST_DMatrix &b, EST_DMatrix &ab)
 	}
 }
 
-void EST_DMatrix::copyin(double **inx, ssize_t rows, ssize_t cols)
+void EST_DMatrix::copyin(double **inx, int rows, int cols)
 {
-    ssize_t i, j;
+    int i, j;
 
     resize(rows, cols);
 
@@ -333,7 +325,7 @@ EST_write_status EST_DMatrix::save(const EST_String &filename,
 	return est_save(filename,type);
     else
     {   // the old stuff raw unheadered
-	ssize_t i, j;
+	int i, j;
 	ostream *outf;
 	if (filename == "-")
 	    outf = &cout;
@@ -366,14 +358,8 @@ EST_write_status EST_DMatrix::est_save(const EST_String &filename,
 				       const EST_String &type)
 {
     // Binary save with short header for byte swap and sizes
-    ssize_t i,j;
+    int i,j;
     FILE *fd;
-
-    /* size_t does not have a ISO C++ printf format specifier (%zd is
-     * not standard for C++ 1998 nor C++ 2003). We use a workaround. */
-    std::stringstream tmpstring;
-    std::string tmpstring2;
-
     if (filename == "-")
 	fd = stdout;
     else if ((fd = fopen(filename, "wb")) == NULL)
@@ -396,14 +382,8 @@ EST_write_status EST_DMatrix::est_save(const EST_String &filename,
     else
 	fprintf(fd,"DataType ascii\n");
 
-    tmpstring.str("");
-    tmpstring << num_rows();
-	tmpstring2 = tmpstring.str();
-    fprintf(fd,"rows %s\n", tmpstring2.c_str());
-    tmpstring.str("");
-    tmpstring << num_columns();
-	tmpstring2 = tmpstring.str();
-    fprintf(fd,"columns %s\n", tmpstring2.c_str());
+    fprintf(fd,"rows %d\n",num_rows());
+    fprintf(fd,"columns %d\n",num_columns());
 
     fprintf(fd,"EST_Header_End\n");
 
@@ -416,7 +396,6 @@ EST_write_status EST_DMatrix::est_save(const EST_String &filename,
 		    cerr << "EST_DMatrix: binsave: failed to write row " 
 			<< i << " column " << j 
 			    << " to \"" << filename << "\"" << endl;
-            if (fd != stdout) fclose(fd);
 		    return misc_write_error;
 		}
     }
@@ -440,7 +419,7 @@ EST_read_status EST_DMatrix::est_load(const EST_String &filename)
 {
 
   // ascii/binary load with short header for byte swap and sizes
-  ssize_t i,j,k;
+  int i,j,k;
   int rows, cols, swap;
   EST_TokenStream ts;
   EST_read_status r;
@@ -498,7 +477,6 @@ EST_read_status EST_DMatrix::est_load(const EST_String &filename)
 	  {
 	    cerr << "EST_DMatrix: binload: short file in \""  
 		 << filename << "\"" << endl;
-        wfree(buff);
 	    return misc_read_error;
 	  }
 	if (swap)
@@ -523,7 +501,7 @@ EST_read_status EST_DMatrix::load(const EST_String &filename)
     {   // maybe its an ancient ascii file
 	EST_TokenStream ts, tt;
 	EST_StrList sl;
-	ssize_t i, j, n_rows=0, n_cols=0;
+	int i, j, n_rows=0, n_cols=0;
 	EST_String t;
 	EST_Litem *p;
 	if (((filename == "-") ? ts.open(cin) : ts.open(filename)) != 0)
@@ -571,7 +549,7 @@ EST_read_status EST_DMatrix::load(const EST_String &filename)
 EST_read_status EST_DVector::est_load(const EST_String &filename)
 {    
   // ascii/binary load with short header for byte swap and sizes
-  ssize_t i,k;
+  int i,k;
   int l, swap;
   EST_TokenStream ts;
   EST_read_status r;
@@ -619,7 +597,6 @@ EST_read_status EST_DVector::est_load(const EST_String &filename)
 	  {
 	    cerr << "EST_DVector: binload: short file in \""  
 		 << filename << "\"" << endl;
-         wfree(buff);
 	    return misc_read_error;
 	  }
 	if (swap)
@@ -687,7 +664,7 @@ EST_read_status EST_DVector::load(const EST_String &filename)
 
 EST_DVector & EST_DVector::operator+=(const EST_DVector &s)
 {
-    ssize_t i;
+    int i;
     if(n() != s.n()){
 	cerr << "Cannot elementwise add vectors of differing lengths" 
 	    << endl;
@@ -710,7 +687,7 @@ EST_DVector& EST_DVector::operator*=(const EST_DVector &s)
 	return *this;
     }
 
-    for (ssize_t i = 0; i < n(); ++i)
+    for (int i = 0; i < n(); ++i)
 	(*this)[i] *= s(i);
 
     return *this;
@@ -718,7 +695,7 @@ EST_DVector& EST_DVector::operator*=(const EST_DVector &s)
 
 EST_DVector& EST_DVector::operator*=(const double f)
 {
-    for (ssize_t i = 0; i < n(); ++i)
+    for (int i = 0; i < n(); ++i)
 	(*this)[i] *= f;
 
     return *this;
@@ -732,7 +709,7 @@ double operator*(const EST_DVector &v1, const EST_DVector &v2)
       return 0;
     }
   double p=0;
-  for (ssize_t i = 0; i < v1.length(); ++i)
+  for (int i = 0; i < v1.length(); ++i)
       p += v1.a_no_check(i) * v2.a_no_check(i);
 
     return p;
@@ -741,7 +718,7 @@ double operator*(const EST_DVector &v1, const EST_DVector &v2)
 
 EST_DVector& EST_DVector::operator/=(const double f)
 {
-    for (ssize_t i = 0; i < n(); ++i)
+    for (int i = 0; i < n(); ++i)
 	(*this)[i] /= f;
 
     return *this;
@@ -756,7 +733,7 @@ EST_write_status EST_DVector::save(const EST_String &filename,
 	return est_save(filename,type);
     else
     {   // the old stuff raw unheadered
-	ssize_t i;
+	int i;
 	ostream *outf;
 	if (filename == "-")
 	    outf = &cout;
@@ -786,9 +763,7 @@ EST_write_status EST_DVector::est_save(const EST_String &filename,
 				      const EST_String &type)
 {
     // Binary save with short header for byte swap and sizes
-    ssize_t i;
-    std::stringstream tmpstring;
-    std::string tmpstring2;
+    int i;
     FILE *fd;
     if (filename == "-")
 	fd = stdout;
@@ -812,10 +787,7 @@ EST_write_status EST_DVector::est_save(const EST_String &filename,
     else
 	fprintf(fd,"DataType ascii\n");
 
-    tmpstring.str("");
-    tmpstring << length();
-    tmpstring2 = tmpstring.str();
-    fprintf(fd,"length %s\n", tmpstring2.c_str());
+    fprintf(fd,"length %d\n",length());
     fprintf(fd,"EST_Header_End\n");
 
     if (type == "est_binary")
@@ -825,7 +797,6 @@ EST_write_status EST_DVector::est_save(const EST_String &filename,
 	    {
 		cerr << "EST_DVector: binsave: failed to write item " 
 		     << i << " to \"" << filename << "\"" << endl;
-        if (fd != stdout) fclose(fd);
 		return misc_write_error;
 	    }
     }

@@ -38,8 +38,8 @@
 /*=======================================================================*/
 
 #include <cstdlib>
-#include <cstdio>
-#include <fstream>
+#include <stdio.h>
+#include <fstream.h>
 #include "EST.h"
 #include "EST_model_types.h"
 

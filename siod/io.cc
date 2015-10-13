@@ -53,14 +53,12 @@
 #include "siodp.h"
 #include "io.h"
 
-using std::cout;
-
 EST_Regex RxURL("\\([a-z]+\\)://?\\([^/:]+\\)\\(:\\([0-9]+\\)\\)?\\(.*\\)");
 EST_Regex RxFILEURL("file:.*");
 static EST_Regex ipnum("[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+");
 
 const int default_http_port = 80;
-const int default_ftp_port = 21;
+//const int default_ftp_port = 21;
 
 #define MAX_LINE_LENGTH (256)
 
@@ -84,8 +82,8 @@ int parse_url(const EST_String &url,
 	       EST_String &path)
 {
   EST_String bitpath;
-  size_t start_of_bracket[EST_Regex_max_subexpressions];
-  size_t end_of_bracket[EST_Regex_max_subexpressions];
+  int start_of_bracket[EST_Regex_max_subexpressions];
+  int end_of_bracket[EST_Regex_max_subexpressions];
 
   if (url.matches(RxFILEURL,0,start_of_bracket, end_of_bracket))
   {
@@ -152,7 +150,7 @@ static int connect_to_server(const char *host, int port)
 
 static void server_send(int s, const char *text)
 {
-  ssize_t n=strlen(text);
+  size_t n=strlen(text);
   ssize_t sent;
 
   while (n>0)

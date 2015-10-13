@@ -14,9 +14,6 @@
 #include "siodp.h"
 #include "siodeditline.h"
 
-using std::cerr;
-using std::endl;
-
 void setdoc(LISP name,LISP doc)
 {
     /* Set documentation string for name */
@@ -84,6 +81,7 @@ static LISP siod_doc(LISP args,LISP penv)
 	return rintern("No documentation available for symbol.");
     }
 	
+    return rintern("No documentation available for symbol.");
 }
 
 static LISP siod_all_function_docstrings(void)

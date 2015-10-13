@@ -44,9 +44,6 @@
 #include "EST_TSimpleMatrix.h"
 #include "EST_TSimpleVector.h"
 
-/** \class EST_SMatrix
- *  \ingroup tiltfunctions
- */
 class EST_SMatrix: public EST_TSimpleMatrix<short> {
 private:
 public:

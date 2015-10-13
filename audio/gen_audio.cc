@@ -51,8 +51,6 @@
 #include "EST_audio.h"
 #include "EST_wave_aux.h"
 
-using namespace std;
-
 static int play_sunau_wave(EST_Wave &inwave, EST_Option &al);
 static int play_socket_wave(EST_Wave &inwave, EST_Option &al);
 static int play_aucomm_wave(EST_Wave &inwave, EST_Option &al);
@@ -83,8 +81,8 @@ int play_wave(EST_Wave &inwave, EST_Option &al)
     {
 	if (nas_supported)
 	    protocol = "netaudio";  // the default protocol
-	else if (pulse_supported)
-	    protocol = "pulseaudio";
+	else if (esd_supported)
+	    protocol = "esdaudio";
 	else if (sun16_supported)
 	    protocol = "sun16audio";
 	else if (freebsd16_supported)
@@ -114,8 +112,8 @@ int play_wave(EST_Wave &inwave, EST_Option &al)
 
     if (upcase(protocol) == "NETAUDIO")
 	return play_nas_wave(*toplay,al);
-    else if (upcase(protocol) == "PULSEAUDIO")
-	return play_pulse_wave(*toplay,al);
+    else if (upcase(protocol) == "ESDAUDIO")
+	return play_esd_wave(*toplay,al);
     else if (upcase(protocol) == "SUNAUDIO")
 	return play_sunau_wave(*toplay,al);
     else if (upcase(protocol) == "SUN16AUDIO")
@@ -166,10 +164,7 @@ static int play_socket_wave(EST_Wave &inwave, EST_Option &al)
     
     // Because the client may receive many different types of file
     // I send WV\n to it before the file itself
-    if (send(fd,"WV\n",3,0) != 3) {
-		cerr << "Socket: Error sending 'WV\\n' to the client" << endl;
-		return -1;
-	}
+    send(fd,"WV\n",3,0);
     socket_send_file(fd,tmpfile);
     unlink(tmpfile);
 
@@ -179,10 +174,9 @@ static int play_socket_wave(EST_Wave &inwave, EST_Option &al)
 static int play_aucomm_wave(EST_Wave &inwave, EST_Option &al)
 {
     // Play wave by specified command 
-    EST_String usrcommand, otype, finalcommand;
+    EST_String usrcommand, otype;
     char tmpfile[2048];
     char pref[2048];
-    int system_result;
 
     if (al.present("-command"))
 	usrcommand = al.val("-command");
@@ -212,16 +206,11 @@ static int play_aucomm_wave(EST_Wave &inwave, EST_Option &al)
 
     sprintf(pref,"FILE=%s;SR=%d;",tmpfile,inwave.sample_rate());
 
-    finalcommand = (EST_String)pref+usrcommand.unquote('"');
-    system_result = system(finalcommand);
-    if (system_result != 0)
-    {
-        cerr << "Command \"" << finalcommand << "\" returned error " <<
-                system_result << endl;
-    }
+    system((EST_String)pref+usrcommand.unquote('"'));
+
     unlink(tmpfile);  // so we don't fill up /tmp
 
-    return system_result;
+    return 0;
 }
 
 static int play_sunau_wave(EST_Wave &inwave, EST_Option &al)
@@ -256,10 +245,10 @@ EST_String options_supported_audio(void)
     audios += " audio_command";
     if (nas_supported)
 	audios += " netaudio";
+    else if (esd_supported)
+	audios += " esdaudio";
     if (sun16_supported)
 	audios += " sun16audio";
-    if (pulse_supported)
-	audios += " pulseaudio";
     if (freebsd16_supported)
 	audios += " freebsd16audio";
     if (linux16_supported)
@@ -296,8 +285,10 @@ int record_wave(EST_Wave &wave, EST_Option &al)
 	protocol = sr;
     else if (protocol == "")
     {
-    if (pulse_supported)
-        protocol = "pulseaudio";
+	if (nas_supported)
+	    protocol = "netaudio";  // the default protocol
+	else if (esd_supported)
+	    protocol = "esdaudio";  // the default protocol
 	else if (sun16_supported)
 	    protocol = "sun16audio";
 	else if (freebsd16_supported)
@@ -316,8 +307,8 @@ int record_wave(EST_Wave &wave, EST_Option &al)
 
     if (upcase(protocol) == "NETAUDIO")
 	return record_nas_wave(wave,al);
-    else if (upcase(protocol) == "PULSEAUDIO")
-	return record_pulse_wave(wave,al);
+    else if (upcase(protocol) == "ESDAUDIO")
+        return record_esd_wave(wave,al);
     else if (upcase(protocol) == "SUN16AUDIO")
 	return record_sun16_wave(wave,al);
     else if ((upcase(protocol) == "FREEBSD16AUDIO") ||

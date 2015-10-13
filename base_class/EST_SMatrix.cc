@@ -68,7 +68,7 @@ int EST_SMatrix::rateconv(int in_samp_freq, int out_samp_freq)
   int *len = new int[num_columns()];
   int max_len=0;
 
-  for(ssize_t c=0; c<num_columns(); c++)
+  for(int c=0; c<num_columns(); c++)
     {
       short *out_buf;
       int osize;
@@ -84,18 +84,15 @@ int EST_SMatrix::rateconv(int in_samp_freq, int out_samp_freq)
 	  if (osize > max_len)
 	    max_len = osize;
 	}
-      else {
-         delete [] results;
-         delete [] len;
-	       return -1;
-      }
+      else
+	return -1;
     }
   delete [] in_buf;
 
   resize(max_len, EST_CURRENT, 0);
   fill(0);
 
-  for(ssize_t c1=0; c1<num_columns(); c1++)
+  for(int c1=0; c1<num_columns(); c1++)
     {
       set_column(c1, results[c1], 0, len[c1]);
       delete [] results[c1];

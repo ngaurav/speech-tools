@@ -59,13 +59,7 @@ public:
 
     EST_THash<EST_String, EST_Item_Content *> contents;
 
-    Parse_State() : contents(100) {
-      depth = 0;
-      utt = 0;
-      rel = 0;
-      parent = 0;
-      current = 0;
-    }
+    Parse_State() : contents(100) {}
   };
 
 class Sole_Parser_Class : public XML_Parser_Class
@@ -181,8 +175,8 @@ static void extract_ids(XML_Attribute_List &attributes,
   else if (attributes.present("href"))
     {
       val = attributes.val("href");
-      size_t starts[EST_Regex_max_subexpressions];
-      size_t ends[EST_Regex_max_subexpressions];
+      int starts[EST_Regex_max_subexpressions];
+      int ends[EST_Regex_max_subexpressions];
       
       if (val.matches(simpleIDRegex, 0, starts, ends))
 	{

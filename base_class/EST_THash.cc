@@ -213,7 +213,7 @@ int EST_THash<K,V>::remove_item(const K &rkey, int quiet)
       }
       
   if (!quiet)
-    std::cerr << "THash: no item labelled \"" << rkey << "\"" << std::endl;
+    cerr << "THash: no item labelled \"" << rkey << "\"" << endl;
   return -1;
 }
 

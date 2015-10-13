@@ -46,8 +46,6 @@
 #include "EST.h"
 #include "EST_WFST.h"
 
-using namespace std;
-
 static int align_main(int argc, char **argv);
 static void nisttool_align(EST_Option &al);
 static void string_align(EST_Option &al);
@@ -65,7 +63,33 @@ static void load_sentence(EST_Utterance &u, const EST_String &relname,
 static void load_sentence(EST_Utterance &u, const EST_String &relname,
 			  EST_String &relval);
 
+/** @name <command>align</command> <emphasis>align stream with reference stream</emphasis>
+    @id align-manual
+  * @toc
+ */
 
+//@{
+
+
+/**@name Synopsis
+  */
+//@{
+
+//@synopsis
+
+/**
+
+ */
+
+//@}
+
+/**@name OPTIONS
+  */
+//@{
+
+//@options
+
+//@}
 int main(int argc, char **argv)
 {
 
@@ -152,12 +176,8 @@ static void nisttool_align(EST_Option &al)
     int total,ins,del,sub,correct;
     int s_total,s_ins,s_del,s_sub,s_correct;
 
-    if (rts.open(reffile) != 0) {
-        exit(-1);
-    }
-    if (hts.open(hypofile) != 0) {
-        exit(-1);
-    }
+    rts.open(reffile);
+    hts.open(hypofile);
     s_total=s_ins=s_del=s_sub=s_correct=0;
 
     while (!rts.eof())

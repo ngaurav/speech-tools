@@ -8,10 +8,6 @@
 
 @SYNOPSIS@
 
-Simple alignment scoring program to give number of insertions,
-deletions, errors between a string of symbols and a reference string
-of symbols.
-
 @section options Options
 
 @OPTIONS@

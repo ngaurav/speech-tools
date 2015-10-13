@@ -39,17 +39,16 @@
  /*************************************************************************/
 
 
-#ifndef __EST_UNIX_WIN32_H__
-#define __EST_UNIX_WIN32_H__
-
-#if defined(SYSTEM_IS_WIN32) /* Will be true if this is being included */
+#if !defined(__EST_UNIX_WIN32_H__)
+#define __EST_UNIX_WIN32_H__ 1
 
 /* force this to be loaded first */
 #ifdef __cplusplus
 #include <iostream>
+using namespace std;
 #endif
 
-#include <stdint.h>
+#include<stdint.h>
 
 #ifdef __cplusplus
 static inline int getpid(void)
@@ -114,6 +113,4 @@ extern "C" {
 #   define memcpy(DST, SRC, N) CopyMemory((DST), (SRC), (N))
 #endif
 
-#endif /* defined(SYSTEM_IS_WIN32) */
-
-#endif /* header guard */
+#endif

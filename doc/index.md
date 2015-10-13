@@ -20,7 +20,7 @@ Edinburgh Speech Tools Library                {#mainpage}
 
 @author Paul Taylor
 @author Richard Caley
-@author Alan W. Black
+@author Alan W Black
 @author Simon King
 
 

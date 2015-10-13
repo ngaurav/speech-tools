@@ -39,22 +39,24 @@
  ###########################################################################
 
 CC=gcc
+CXX=gcc
+ifeq ($(OSTYPE),Darwin)
 CXX=g++
+endif
 
 COMPILER_DESC=FSF gcc
 COMPILER_VERSION_COMMAND=$(CXX) -v 2>&1 | tail -1 | sed -e 's/^....//'
 
-CFLAGS    += $(GCC_SYSTEM_OPTIONS) $(CC_OTHER_FLAGS) $(CPPFLAGS) -D_FILE_OFFSET_BITS=64
-CXXFLAGS  +=  $(GCC_SYSTEM_OPTIONS) $(CC_OTHER_FLAGS) $(CPPFLAGS) -D_FILE_OFFSET_BITS=64
-LINKFLAGS +=  $(LDFLAGS)
+CFLAGS  = $(GCC_SYSTEM_OPTIONS) $(CC_OTHER_FLAGS)
+CXXFLAGS  =  $(GCC_SYSTEM_OPTIONS) -fno-implicit-templates $(CC_OTHER_FLAGS)
 
 DEBUG_CCFLAGS   = -g
 DEBUG_CXXFLAGS  = -g
 DEBUG_LINKFLAGS = -g
 
-WARN_CCFLAGS   = -Wall -Wextra -Werror
-WARN_CXXFLAGS  = -Wall -Wextra -Werror
-WARN_LINKFLAGS = -Wall -Wextra -Werror
+WARN_CCFLAGS   = -Wall
+WARN_CXXFLAGS  = -Wall
+WARN_LINKFLAGS = -Wall
 
 VERBOSE_CCFLAGS   =
 VERBOSE_CXXFLAGS  = 
@@ -74,16 +76,12 @@ PROFILE_gprof_CCFLAGS   = -pg
 PROFILE_gprof_CXXFLAGS  = -pg
 PROFILE_gprof_LINKFLAGS = -pg
 
-PROFILE_gcov_CCFLAGS   = --coverage
-PROFILE_gcov_CXXFLAGS  = --coverage
-PROFILE_gcov_LINKFLAGS = -lgcov --coverage
-
 SHARED_CCFLAGS  = -fPIC 
 SHARED_CXXFLAGS  = -fPIC 
 SHARED_LINKFLAGS = 
 
 ifndef GCC_MAKE_SHARED_LIB
-    MAKE_SHARED_LIB = $(CXX) -shared -o XXX -Wl,-soname -Wl,YYY
+    MAKE_SHARED_LIB = $(CXX) -shared -fno-shared-data -o XXX
 else
     MAKE_SHARED_LIB = $(GCC_MAKE_SHARED_LIB)
 endif
@@ -100,7 +98,7 @@ TEMPLATE_ARGS =
 ## The -lgcc here is redundant - gcc does this anyway - but it
 ## helps java know what needs to be loaded.
 
-COMPILERLIBS= $(COMPILER_LIBS_DIR:%=-L%)
+COMPILERLIBS= $(COMPILER_LIBS_DIR:%=-L%) -lstdc++
 
 ## special ways of doing things, blank means default
 

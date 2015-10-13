@@ -122,7 +122,7 @@ template<class T> EST_TList<T> &EST_TList<T>::operator+=(const EST_TList<T> &a)
 {
     if (this == &a)
     {
-	std::cerr << "EST_TList: error: tried to add list to itself\n";
+	cerr << "EST_TList: error: tried to add list to itself\n";
 	return *this;
     }
     copy_items(a);

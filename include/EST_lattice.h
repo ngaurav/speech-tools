@@ -179,7 +179,7 @@ public:
     float viterbi_transduce(EST_Track &observations,
 			    EST_TList<Arc*> &path,
 			    float &score,
-			    ssize_t current_frame = 0,
+			    int current_frame = 0,
 			    Node *start_node = NULL);
 
     // map lookup functions
@@ -249,7 +249,7 @@ operator + (const Lattice::symbol_t s1,
 {
     (void) s1;
     (void) s2;
-    std::cerr << "operator + makes no sense for Lattice::symbol_t !" << std::endl;
+    cerr << "operator + makes no sense for Lattice::symbol_t !" << endl;
     return Lattice::symbol_t();
 
 }

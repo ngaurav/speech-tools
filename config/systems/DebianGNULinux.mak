@@ -38,4 +38,4 @@
  ###########################################################################
 
 # Debian does not use termcap
-OS_LIBS = 
+OS_LIBS = -ldl -lncurses

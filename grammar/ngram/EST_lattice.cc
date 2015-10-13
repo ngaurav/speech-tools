@@ -41,13 +41,9 @@
 #include <fstream>
 #include <cstdlib>
 
-using namespace std;
-
 Lattice::Lattice()
 {
-    tf=0;
-    qmap_error_margin = 0;
-    e_move_symbol_index = 0;
+    tf=NULL;
 }
 
 
@@ -742,7 +738,6 @@ Lattice::build_distinguished_state_table(bool ** &dst)
     // any final/non-final (or non-final/final) pairs are distinguished immediately
     for(i=0,n_ptr=nodes.head();n_ptr->next()!=NULL;n_ptr=n_ptr->next(),i++){
 	for(j=i+1,n2_ptr=n_ptr->next();n2_ptr!=NULL;n2_ptr=n2_ptr->next(),j++){
-	    
 	    if(final(nodes(n_ptr)) && !final(nodes(n2_ptr)))
 		dst[i][j] = true;
 	    else if(!final(nodes(n_ptr)) && final(nodes(n2_ptr)))
@@ -797,9 +792,7 @@ Lattice::build_distinguished_state_table_direct(bool ** &dst)
 	scan_count++;
 
 	for(i=0,n_ptr=nodes.head();n_ptr->next()!=NULL;n_ptr=n_ptr->next(),i++){
-	    
 	    for(j=i+1,n2_ptr=n_ptr->next();n2_ptr!=NULL;n2_ptr=n2_ptr->next(),j++){
-		
 		cerr << "scan " << scan_count << " : " << i << "," << j << "     \r";
 
 		if(!dst[i][j]){
@@ -934,7 +927,6 @@ Lattice::minimise()
 
     if(!build_distinguished_state_table(dst)){
 	cerr << "Couldn't build distinguished state table" << endl;
-    delete[] dst;
 	return false;
     }
 
@@ -961,7 +953,7 @@ Lattice::minimise()
 
 	merge_list.clear();
 	for(i=0,n_ptr=nodes.head();n_ptr->next()!=NULL;n_ptr=n_ptr->next(),i++){
-	    
+
 	    cerr << "merge, processing row " << i << "        \r";
 	    
 	    for(j=i+1,n2_ptr=n_ptr->next();n2_ptr!=NULL;n2_ptr=n2_ptr->next(),j++){
@@ -1429,7 +1421,7 @@ Lattice::expand()
     }
 
     // need to make sure ENTER node has no arcs in - if so add a dummy ENTER node
-    /*
+
     //Node *enter_node = nodes(nodes.head());
     bool flag=false;
     for(n_ptr=nodes.head();n_ptr!=NULL;n_ptr=n_ptr->next()){
@@ -1439,7 +1431,7 @@ Lattice::expand()
 	}
     }
 
-
+/*
     if(flag){
 	cerr << " fixing ENTER node" << endl;
 	new_node = new Node;
@@ -1607,10 +1599,6 @@ Lattice::build_transition_function()
     int num_nodes = nodes.length();
     int num_symbols = alphabet.n();
 
-    if (num_nodes <= 0) {
-        cerr << "No nodes, no transition function" << endl;
-        return true;
-    }
     if(tf != NULL)
 	cerr << "Warning : discarding existing transition function" << endl;
 
@@ -1712,7 +1700,7 @@ Lattice::viterbi_transduce(EST_TList<EST_String> &input,
 float Lattice::viterbi_transduce(EST_Track &observations,
 			   EST_TList<Arc*> &path,
 			   float &score,
-			   ssize_t current_frame,
+			   int current_frame,
 			   Node *start_node)
 {
     // finds maximum sum-of-probs path
@@ -1743,7 +1731,7 @@ float Lattice::viterbi_transduce(EST_Track &observations,
     float max=-10000000; // hack for now
     for (a_ptr = start_node->arcs_out.head(); a_ptr != 0; a_ptr = a_ptr->next()){
 
-	ssize_t observation_element =
+	int observation_element =
 	    alphabet_index_to_symbol(start_node->arcs_out(a_ptr)->label)->nmap_index
 	    - 2; // HACK !!@!!!! to skip ENTER/EXIT
 	

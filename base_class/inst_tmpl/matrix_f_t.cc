@@ -54,13 +54,13 @@ Instantiate_TSimpleMatrix(float)
 
 EST_write_status save(const EST_String &filename, const EST_TMatrix<float> &a)
 {
-    ssize_t i,j;
+    int i,j;
     ostream *outf;
     EST_String s;
     if (filename == "-")
-	outf = &std::cout;
+	outf = &cout;
     else
-	outf = new std::ofstream(filename);
+	outf = new ofstream(filename);
     
     if (!(*outf)) return misc_write_error;
 
@@ -70,10 +70,10 @@ EST_write_status save(const EST_String &filename, const EST_TMatrix<float> &a)
 	{
 	    *outf << a(i,j) << "\t";
 	}
-	*outf << std::endl;
+	*outf << endl;
     }
     
-    if (outf != &std::cout)
+    if (outf != &cout)
 	delete outf;
     return write_ok;
 }

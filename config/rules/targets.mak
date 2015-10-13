@@ -66,34 +66,21 @@ ${SUBDIRECTORIES} dummy_dir_name: FORCE
 ## Clean up junk
 
 clean:
-	$(RM) -fr $(OBJS) $(JAVA_CLASSES_CLASS) $(ALL_EXECS) \
-	          $(ALL_EXECS:%=%.mak) $(ALL_LIBS) $(LOCAL_CLEAN) \
-	          make.depend make.include .buildlib* *~ *.gcda \
-	          *.gcov *.gcno
+	$(RM) -fr $(OBJS) $(JAVA_CLASSES_CLASS) $(ALL_EXECS) $(ALL_EXECS:%=%.mak) $(ALL_LIBS) $(LOCAL_CLEAN) make.depend .buildlib* *~
 ifdef ALL_DIRS
 	@ for i in $(ALL_DIRS) ; \
 	do \
 	   echo "clean in $(DIRNAME)/$$i" ;\
-	   $(MAKE) --no-print-directory -C $$i NO_DEPEND=1 clean ; \
+	   $(MAKE) --no-print-directory -C $$i clean ; \
 	done
 endif
 ifdef EXTRA_LIB_BUILD_DIRS
 	@ for i in $(EXTRA_LIB_BUILD_DIRS) ; \
 	do \
 	   echo "clean in $(DIRNAME)/$$i" ;\
-	   $(MAKE) --no-print-directory -C $$i NO_DEPEND=1 clean ; \
+	   $(MAKE) --no-print-directory -C $$i clean ; \
 	done
 endif
-
-distclean: clean $(LOCAL_DISTCLEAN_RULES)
-ifdef ALL_DIRS
-	@ for i in $(ALL_DIRS) ; \
-	do \
-	   echo "distclean in $(DIRNAME)/$$i" ;\
-	   $(MAKE) --no-print-directory -C $$i NO_DEPEND=1 distclean ; \
-	done
-endif
-	$(RM) -fr $(LOCAL_DISTCLEAN)
 
 ###########################################################################
 ## strip executables
@@ -144,7 +131,7 @@ ifndef MADE_FROM_ABOVE
 endif
 ifdef FILES
 	@for i in $(FILES) ; \
-	do \
+	do  \
 	   echo $(DIRNAME)/$$i ; \
 	done >>$(TOP)/FileList 
 endif
@@ -157,6 +144,30 @@ ifdef ALL_DIRS
 endif
 
 FileList: file-list
+
+###########################################################################
+## list things which doc++ should process
+
+doc++files : FORCE
+	@echo "doc++files in $(DIRNAME)"
+ifdef H
+	@for i in $(H) ; \
+	do  \
+	   echo $(DIRNAME)/$$i ; \
+	done >>$(TOP)/Doc++Files
+endif
+ifdef DOCXX_FILES
+	@for i in $(DOCXX_FILES) ; \
+	do  \
+	   echo $(DIRNAME)/$$i ; \
+	done >>$(TOP)/Doc++Files
+endif
+ifdef ALL_DIRS
+	@for i in $(ALL_DIRS) ; \
+	do \
+	   $(MAKE) MADE_FROM_ABOVE=1 --no-print-directory -C $$i doc++files ; \
+	done
+endif
 
 ###########################################################################
 ## Instalation rules

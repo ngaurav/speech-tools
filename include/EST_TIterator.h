@@ -34,8 +34,6 @@
 #ifndef __EST_TITERATOR_H__
 #define __EST_TITERATOR_H__
 
-#include <cstddef>
-
 /** Template class defining interface to an iterator, i.e an object
   * which returns elements from a structure one at a time.
   *
@@ -49,17 +47,16 @@
   * and to the iterators in the C++ standard template library and an
   * interface similar to that of Enumerations in Java.
   *
-  * @code{.cpp}
+  * <programlisting arch='c++'>
   * MyContainer::Entries them;
   *
   * for(them.begin(container); them; them++)
   *     {
   *     MyContainer::Entry &it = *them;
   *     // Do Something With it
-  *     }
-  * @endcode
+  *     }</programlisting>
   * 
-  * @code{.cpp}
+  * <programlisting arch='c++'>
   * MyContainer::Entries them;
   *
   * them.begin(container);
@@ -67,8 +64,7 @@
   *     {
   *     MyContainer::Entry &it = them.next_entry();
   *     // Do Something With it
-  *     }
-  *  @endcode
+  *     }</programlisting>
   * 
   * @author Richard Caley <rjc@cstr.ed.ac.uk>
   * @version $Id: EST_TIterator.h,v 1.7 2013/04/13 14:17:11 awb Exp $ 
@@ -101,7 +97,7 @@ public:
   typedef EST_TIterator<Container, IPointer, Entry> Iter;
 
   /// Create an iterator not associated with any specific container.
-  EST_TIterator() {cont=NULL; pos=0;}
+  EST_TIterator() {cont=NULL;}
 
   /// Create an iterator ready to run over the given container.
   EST_TIterator(const Container &over)
@@ -125,7 +121,7 @@ public:
 
   /**@name End Tests
     */
-  ///@{
+  //@{
   /// True if there are more elements to look at.
   bool has_more_elements() const
     {return cont && cont->points_to_something(pointer);}
@@ -139,11 +135,11 @@ public:
     */
   operator int() const
     {return has_more_elements();}
-  ///@}
+  //@}
 
   /**@name Moving Forward
     */
-  ///@{
+  //@{
   /// Next moves to the next entry.
   void next()
     {cont->move_pointer_forwards(pointer); pos++;}
@@ -158,11 +154,11 @@ public:
       next(); 
       return old;
     }
-  ///@}
+  //@}
 
   /**@name Access
     */
-  ///@{
+  //@{
   /// Return the element currently pointed to.
   const Entry& current() const
     {return cont->points_at(pointer);}
@@ -188,7 +184,7 @@ public:
   /// Return the current position
 
   unsigned int n() const { return pos; }
-  ///@}
+  //@}
 
   friend class EST_TStructIterator <Container, IPointer, Entry>;
   friend class EST_TRwIterator <Container, IPointer, Entry>;
@@ -196,9 +192,6 @@ public:
 
 };
 
-/** @class EST_TStructIterator
- * @ingroup supportclasses
- */
 template <class Container, class IPointer, class Entry>
 class EST_TStructIterator 
   : public EST_TIterator<Container, IPointer, Entry>
@@ -235,7 +228,7 @@ private:
 
 public:
 
-  typedef EST_TRwIterator<Container, IPointer, Entry> Iter;
+  typedef EST_TIterator<Container, IPointer, Entry> Iter;
 
   /// Create an iterator not associated with any specific container.
   EST_TRwIterator() {this->cont=NULL;}
@@ -254,7 +247,7 @@ public:
 
   /**@name Access
     */
-  ///@{
+  //@{
   /// Return the element currently pointed to.
   Entry& current() const
     {return this->cont->points_at(this->pointer);}
@@ -276,7 +269,7 @@ public:
 	  return it; 
 	}
 
-  ///@}
+  //@}
 };
 
 template <class Container, class IPointer, class Entry>
@@ -285,7 +278,7 @@ class EST_TRwStructIterator
 {
 public:
 
-  typedef EST_TRwStructIterator<Container, IPointer, Entry> Iter;
+  typedef EST_TIterator<Container, IPointer, Entry> Iter;
 
   /// Create an iterator not associated with any specific container.
   EST_TRwStructIterator() {this->cont=NULL;}

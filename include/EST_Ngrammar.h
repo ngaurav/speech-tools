@@ -43,6 +43,8 @@
 #include <cstdarg>
 #include <cstdlib>
 
+using namespace std;
+
 #include "EST_String.h"
 #include "EST_Val.h"
 #include "EST_rw_status.h"
@@ -172,7 +174,7 @@ public:
   const EST_String &most_probable(double *prob = NULL) const
     {return p_pdf.most_probable(prob);}
 
-  int level() const {return p_level;}
+  const int level() const {return p_level;}
   
   EST_BackoffNgrammarState* get_child(const EST_String &word) const
     {
@@ -189,12 +191,12 @@ public:
   // recursive delete of contents and children
   void zap();
 
-  const EST_BackoffNgrammarState * get_state(const EST_StrVector &words) const;
+  const EST_BackoffNgrammarState *const get_state(const EST_StrVector &words) const;
 
   bool ngram_exists(const EST_StrVector &words,
 		    const double threshold) const;
-  double get_backoff_weight() const {return backoff_weight; }
-  double get_backoff_weight(const EST_StrVector &words) const;
+  const double get_backoff_weight() const {return backoff_weight; }
+  const double get_backoff_weight(const EST_StrVector &words) const;
   bool set_backoff_weight(const EST_StrVector &words, const double w);
   void frequency_of_frequencies(EST_DVector &ff);
   
@@ -203,15 +205,6 @@ public:
 friend ostream&  operator<<(ostream& s, const EST_BackoffNgrammarState &a);
   
 };
-
-class EST_Ngrammar;
-EST_write_status save_ngram_htk_ascii(const EST_String filename, EST_Ngrammar &n, double floor=0.0);
-EST_write_status save_ngram_cstr_ascii(const EST_String filename, EST_Ngrammar &n, const bool trace=false, double floor=0.0);
-EST_write_status save_ngram_cstr_bin(const EST_String filename, EST_Ngrammar &n, const bool trace=false, double floor=0.0);
-void frequency_of_frequencies(EST_DVector &ff, EST_Ngrammar &n,int this_order=0);
-void map_frequencies(EST_Ngrammar &n, const EST_DVector &map, const int this_order=0);
-bool Good_Turing_smooth(EST_Ngrammar &n, int maxcount, int mincount=0);
-void Good_Turing_discount(EST_Ngrammar &ngrammar, const int maxcount, const double default_discount=0.5);
 
 class EST_Ngrammar {
     
@@ -267,7 +260,7 @@ protected:
     // applied to a trigram frequency of 4
     // backoff_discount[0] is unused (we don't discount unigrams)
     EST_DVector *backoff_discount;
-    double get_backoff_discount(const int order, const double freq) const;
+    const double get_backoff_discount(const int order, const double freq) const;
 
     bool init_backoff_representation();
     void prune_backoff_representation(EST_BackoffNgrammarState *start_state=NULL); // remove any zero frequency branches
@@ -293,7 +286,7 @@ protected:
     
     const EST_String &lastword(const EST_StrVector &words) const
         { return words(p_order-1); }
-    int lastword(const EST_IVector &words) const
+    const int lastword(const EST_IVector &words) const
         { return words(p_order-1); }
     // are we allowing out-of-vocabulary words, or is the vocabulary closed?
     bool allow_oov; 
@@ -347,11 +340,11 @@ protected:
     
     // special versions for backoff grammars
     const EST_DiscreteProbDistribution &backoff_prob_dist(const EST_StrVector &words) const;    
-    double backoff_reverse_probability_sub(const EST_StrVector &words,
+    const double backoff_reverse_probability_sub(const EST_StrVector &words,
 				    const EST_BackoffNgrammarState *root) const;
-    double backoff_probability(const EST_StrVector &words,
+    const double backoff_probability(const EST_StrVector &words,
 				     const bool trace=false) const;
-    double backoff_reverse_probability(const EST_StrVector &words) const;
+    const double backoff_reverse_probability(const EST_StrVector &words) const;
     const EST_String & backoff_most_probable(const EST_StrVector &words,
 					     double *prob = NULL) const;
 
@@ -370,13 +363,7 @@ protected:
 			  void *params, const int level);
 public:
 
-    EST_Ngrammar() {
-		default_values();
-		p_order = -1;
-		p_number_of_sentences = 0;
-		backoff_representation = 0;
-		backoff_discount = 0;
-	}
+    EST_Ngrammar() {default_values();}
 
     EST_Ngrammar(int o, representation_t r, 
 		 const EST_StrList &wordlist)
@@ -525,7 +512,7 @@ public:
 
     bool ngram_exists(const EST_StrVector &words) const;
     bool ngram_exists(const EST_StrVector &words, const double threshold) const;
-    double get_backoff_weight(const EST_StrVector &words) const;
+    const double get_backoff_weight(const EST_StrVector &words) const;
     bool set_backoff_weight(const EST_StrVector &words, const double w);
     
     void print_freqs(ostream &os,double floor=0.0);

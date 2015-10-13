@@ -12,7 +12,6 @@
 /* WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.       */
 /*                                                                       */
 /*************************************************************************/
-#define _POSIX_SOURCE
 #ifdef FOR_LT
 
 #include "lt-defs.h"
@@ -97,7 +96,7 @@ static FILE16 *file_open(const char *url,
 		       const char *host, int port, const char *path,
 		       const char *type);
 
-static int parse_url(const char *url, 
+static void parse_url(const char *url, 
 		      char **scheme, char **host, int *port, char **path);
 
 /* Mapping of scheme names to opening functions */
@@ -136,9 +135,6 @@ char *default_base_url(void)
 	    *p = '/';
     }
     url = Malloc(6 + strlen(buf) + 2);
-    if (url == NULL) {
-        return NULL;
-    }
     sprintf(url, "file:/%s/", buf);
 
 #else
@@ -156,9 +152,6 @@ char *default_base_url(void)
 	    *p = 0;
     }
     url = Malloc(6 + strlen(buf) + 2);
-    if (url == NULL) {
-        return NULL;
-    }
     sprintf(url, "file:/%s/", buf);
 
 #else
@@ -166,9 +159,6 @@ char *default_base_url(void)
     /* Unix: translate /a/b to file:/a/b/ */
 
     url = Malloc(5 + strlen(buf) + 2);
-    if (url == NULL) {
-        return NULL;
-    }
     sprintf(url, "file:%s/", buf);
 
 #endif
@@ -197,9 +187,7 @@ char *url_merge(const char *url, const char *base,
     
     /* First see if we have an absolute URL */
 
-    if (parse_url(url, &scheme, &host, &port, &path) < 0) {
-        goto bad;
-    }
+    parse_url(url, &scheme, &host, &port, &path);
     if(scheme && (host || *path == '/'))
     {
 	merged_scheme = scheme;
@@ -215,9 +203,7 @@ char *url_merge(const char *url, const char *base,
     if(!base)
 	base = default_base = default_base_url();
 
-    if (parse_url(base, &base_scheme, &base_host, &base_port, &base_path) < 0) {
-        goto bad;
-    }
+    parse_url(base, &base_scheme, &base_host, &base_port, &base_path);
     if(base_scheme && (base_host || *base_path == '/'))
 	;
     else 
@@ -306,7 +292,6 @@ char *url_merge(const char *url, const char *base,
 	    LT_ERROR2(LEFILE,
 	     "Error: relative URL <%s> has scheme different from base <%s>\n",
 			 url, base);
-		Free(merged_path);
 	    goto bad;
 	}
     }
@@ -331,9 +316,6 @@ char *url_merge(const char *url, const char *base,
     merged_url = Malloc(strlen(merged_scheme) + 1 + 
 			(merged_host ? 2 + strlen(merged_host) + 10 : 0) +
 			strlen(merged_path) + 1);
-    if (merged_url == NULL) {
-        goto bad;
-    }
     if(merged_host) 
     {
 	if(merged_port == -1)
@@ -385,9 +367,8 @@ bad:
 FILE16 *url_open(const char *url, const char *base, const char *type,
 		 char **merged_url)
 {
-    char *scheme =NULL, *host, *path, *m_url;
-    int port;
-    unsigned int i;
+    char *scheme, *host, *path, *m_url;
+    int port, i;
     FILE16 *f;
 #ifdef HAVE_LIBZ
     int len, gzipped = 0;
@@ -395,11 +376,8 @@ FILE16 *url_open(const char *url, const char *base, const char *type,
 
     /* Determine the merged URL */
 
-    if(!(m_url = url_merge(url, base, &scheme, &host, &port, &path))) {
-	Free(path);
-	Free(scheme);
+    if(!(m_url = url_merge(url, base, &scheme, &host, &port, &path)))
 	return 0;
-    }
 
 #ifdef HAVE_LIBZ
     len = strlen(m_url);
@@ -553,15 +531,14 @@ static FILE16 *http_open(const char *url,
 	LT_ERROR1(LEFILE,
 		     "Error: can't find address for host in http URL \"%s\"\n",
 		     url);
-    close(s);
 	return 0;
     }
 
     memset(&addr, 0, sizeof(addr));
     addr.sin_family = AF_INET;
     /* If we were really enthusiastic, we would try all the host's addresses */
-    memcpy(&addr.sin_addr, hostent->h_addr_list[0], hostent->h_length);
-    addr.sin_port = htons((uint16_t)(port == -1 ? 80 : port));
+    memcpy(&addr.sin_addr, hostent->h_addr, hostent->h_length);
+    addr.sin_port = htons((u_short)(port == -1 ? 80 : port));
 
     /* Connect */
 
@@ -569,7 +546,6 @@ static FILE16 *http_open(const char *url,
     {
 	LT_ERROR1(LEFILE, "Error: system call connect failed: %s\n",
 		     Strerror());
-    close(s);
 	return 0;
     }
 
@@ -581,15 +557,7 @@ static FILE16 *http_open(const char *url,
 #else
     fin = fdopen(s, "r");
     setvbuf(fin, 0, _IONBF, 0);
-    int newfd = dup(s);
-    if (newfd < 0) {
-        LT_ERROR(LEFILE,
-                 "Error: http_open: Can't copy file descriptor\n");
-        close(s);
-        fclose(fin);
-    return 0;
-    }
-    fout = fdopen(newfd, "w");
+    fout = fdopen(dup(s), "w");
 #endif
 #endif
 
@@ -714,7 +682,7 @@ static FILE16 *file_open(const char *url,
     FILE *f;
     FILE16 *f16;
     char *file;
-    (void) port;
+
     if(host && host[0])
 	WARN1(LEFILE, "Warning: ignoring host part in file URL \"%s\"\n", url);
 
@@ -775,7 +743,7 @@ static FILE16 *file_open(const char *url,
     return f16;
 }
 
-static int parse_url(const char *url, 
+static void parse_url(const char *url, 
 		      char **scheme, char **host, int *port, char **path)
 {
     char *p, *q;
@@ -793,9 +761,6 @@ static int parse_url(const char *url,
     if(p > url && *p == ':')
     {
 	*scheme = Malloc(p - url + 1);
-    if (*scheme == NULL) {
-        return -1;
-    }
 	strncpy(*scheme, url, p - url);
 	(*scheme)[p - url] = '\0';
 	url = p+1;
@@ -823,9 +788,6 @@ static int parse_url(const char *url,
 	    q = p;
 
 	*host = Malloc(q - url + 1);
-    if (*host == NULL) {
-        return -1;
-    }
 	strncpy(*host, url, q - url);
 	(*host)[q - url] = '\0';
 	url = p;
@@ -852,6 +814,5 @@ static int parse_url(const char *url,
 
 	    *p = '/';
 	}
-    return 0;
 }
 

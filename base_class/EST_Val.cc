@@ -101,18 +101,18 @@ EST_Val &EST_Val::operator=(const EST_Val &c)
     return *this;
 }
 
-ssize_t EST_Val::to_int(void) const
+const int EST_Val::to_int(void) const
 {
     // coerce this to an int
     if (t==val_float)
 	return (int)v.fval;
     else if (t==val_string)
-	return atol(sval);
+	return atoi(sval);
     else
 	return v.ival;  // just for completeness
 }
 
-float EST_Val::to_flt(void) const
+const float EST_Val::to_flt(void) const
 {
     // coerce this to a float
     if (t==val_int)

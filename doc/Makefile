@@ -36,6 +36,9 @@
 ##                                                                       ##
 ##                    Documentation directory                            ##
 ##                                                                       ##
+##  After Sergio's updates, make doc runs again.  You will need to have  ##
+##  doxygen, xsltproc and graphviz installed to run this                 ##
+##                                                                       ##
 ##=======================================================================##
 TOP=..
 DIRNAME=doc
@@ -59,10 +62,7 @@ LOCAL_CLEAN = doxygen
 -include $(TOP)/config/common_make_rules
 
 doc:
-	$(MAKE) -C $(TOP_BUILDDIR)/doc/man all_dox
-	$(DOXYGEN) $(TOP)/doc/DoxyFile
+	(cd $(TOP)/doc/man; make all_dox)
+	doxygen $(TOP)/doc/DoxyFile
 
-
-doc-pdf: doc
-	$(MAKE) -C $(TOP_BUILDDIR)/doc/doxygen/latex all
 

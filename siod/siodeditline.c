@@ -65,7 +65,6 @@ int editline_histsize;
 
 int siod_el_getc(FILE *f)
 {
-    (void) f;
     int c;
 
     if (el_pos == -1)
@@ -183,7 +182,6 @@ void siod_el_init(void)
 
 int siod_el_getc(FILE *f)
 {
-    (void) f;
     int c;
 
     if (el_pos == -1)
@@ -197,7 +195,7 @@ int siod_el_getc(FILE *f)
 	el_pos = 0;
     }
     if ((el_line==NULL) ||
-	( el_pos >= 0 && strlen(el_line) <= (size_t) el_pos))
+	(strlen(el_line) <= el_pos))
 	el_pos = -1;
     if (el_line==NULL)
 	c = EOF;
@@ -214,8 +212,6 @@ int siod_el_getc(FILE *f)
 
 void siod_el_ungetc(int c, FILE *f)
 {
-    (void) f;
-    (void) c;
     if (el_pos > 0)
 	el_pos--;
     else
@@ -251,7 +247,7 @@ static char **command_completion (char *text,int start,int end)
     {
 	/* If there are at least two, Sort them  */
 	for (i=0; matches[i] != NULL; i++);
-	qsort(matches,i,sizeof(char *),qsort_str_compare);
+	qsort(matches,i,sizeof(char **),qsort_str_compare);
     }
 
     return matches;
@@ -259,7 +255,6 @@ static char **command_completion (char *text,int start,int end)
 
 static int possible_commandp(char *text, int start, int end)
 {
-    (void) end;
     /* If non-white space previous to this is a left paren */
     /* signal we are looking for a function name           */
     int t;
@@ -277,7 +272,6 @@ static int possible_commandp(char *text, int start, int end)
 
 static int possible_variablep(char *text, int start, int end)
 {
-    (void) end;
     /* Almost negative of above but if previous symbol is a quote */
     /* let the file completion stuff do it                        */
     int t;

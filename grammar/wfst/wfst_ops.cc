@@ -47,8 +47,6 @@
 #include "EST_TKVL.h"
 #include "EST_THash.h"
 
-using namespace std;
-
 Declare_TList_T(EST_WFST_MultiState *,EST_WFST_MultiStateP)
 
   // Declare_KVL(int, EST_IList)
@@ -88,7 +86,7 @@ Declare_TList_T(EST_WFST_MultiState *,EST_WFST_MultiStateP)
 	template class EST_TItem< TLIST_KVI_int_EST_IList_t_VAL >; 
 	template const char *error_name(EST_TList< KVI_int_EST_IList_t > val); 
 
-    Instantiate_TIterator_T( EST_TList<KVI_int_EST_IList_t>, EST_TList<KVI_int_EST_IList_t>::IPointer, KVI_int_EST_IList_t, TList_KVI_int_EST_IList_t_itt)
+        Instantiate_TIterator_T( EST_TList<KVI_int_EST_IList_t>, EST_TList<KVI_int_EST_IList_t>::IPointer, KVI_int_EST_IList_t, TList_KVI_int_EST_IList_t_itt);
 
 
 #endif
@@ -231,6 +229,7 @@ void EST_WFST::determinize(const EST_WFST &ndwfst)
 		else
 		{
 		    nms->set_name(new_name);
+		    delete nms;
 		}
 
 		// Add new transition to current state
@@ -238,7 +237,7 @@ void EST_WFST::determinize(const EST_WFST &ndwfst)
 		    ->add_transition(nms->weight(),
 				     nms->name(),
 				     i,o);
-		delete nms;
+		
 	    }
 	}
 	delete current;
@@ -428,12 +427,12 @@ void EST_WFST::intersection(wfst_list &wl)
 		else  // already seen this state, and is already named
 		{
 		    nms->set_name(new_name);
+		    delete nms;
 		}
 
 		// Add new transition to current state
 		p_states[current->name()]
 		    ->add_transition(nms->weight(),nms->name(),i,o);
-		delete nms;
 	    }
 	}
 	delete current;

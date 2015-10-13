@@ -43,14 +43,8 @@
 #include "EST_SCFG.h"
 #include "EST_SCFG_Chart.h"
 
-using namespace std;
-
 EST_SCFG_Chart_Edge::EST_SCFG_Chart_Edge()
 {
-    p_d1 = 0;
-    p_d2 = 0;
-    p_pos = 0;
-    p_prob = 0;
 }
 
 EST_SCFG_Chart_Edge::EST_SCFG_Chart_Edge(double prob,
@@ -296,7 +290,7 @@ LISP EST_SCFG_Chart::find_parse()
 
     top = edges[0][n_vertices-1][grammar->distinguished_symbol()];
 
-    if (top == NULL)
+    if (top == 0)
 	return NIL;   // no parse
     else
 	return print_edge(0,n_vertices-1,grammar->distinguished_symbol(),top);
@@ -336,7 +330,7 @@ void EST_SCFG_Chart::extract_parse(EST_Relation *syn,
 
     top = edges[0][n_vertices-1][grammar->distinguished_symbol()];
 
-    if (top == NULL)
+    if (top == 0)
 	return;   // failed to parse so no parse tree
     else
     {
@@ -391,10 +385,6 @@ void EST_SCFG_Chart::extract_edge(int start, int end, int p,
 	s->append_daughter((*word));
 	s->set_name(grammar->nonterminal(p));	
 	s->set("prob",(float)e->prob());
-    if (*word ==NULL || **word == NULL) {
-	    cerr << "SCFG_Chart: extract_edge, null word. Should not happen." << endl;
-        return; /* error */
-    }
 	*word = (*word)->next();  // increment along "word" stream
 	return;
     }

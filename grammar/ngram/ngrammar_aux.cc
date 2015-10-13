@@ -42,8 +42,6 @@
 #include "EST_String.h"
 #include "EST_Ngrammar.h"
 
-using namespace std;
-
 static bool
 ExponentialFit(EST_DVector &N, double &a, double &b, int first, int last)
 {
@@ -432,24 +430,25 @@ Good_Turing_smooth(EST_Ngrammar &ngrammar, int maxcount, int mincount)
 	EST_DVector freqs,mapped_freqs;
 	// grammar is of a single order - simple
 	// Find frequency distribution
-	frequency_of_frequencies(freqs,ngrammar);
+	frequency_of_frequencies(freqs,ngrammar,0);
 	// smoothing should be optional - to do
 	smoothed_frequency_distribution_ExponentialFit(freqs,maxcount-1);
 	// Build map of frequencies
 	adjusted_frequencies_BasicGoodTuring(mapped_freqs,freqs,maxcount);
 	// Map all frequencies in grammar to Good Turing Smoothed values
-	map_frequencies(ngrammar,mapped_freqs);
+	map_frequencies(ngrammar,mapped_freqs,0);
 	
     }
     break;
     
   case EST_Ngrammar::backoff:
 {
-    (void)mincount;
     
     cerr << "Smoothing of backed of grammars is not available!" << endl;
     return false;
-        
+    
+    (void)mincount;
+    
     /*
        // need to smooth for each order independently
        int i,o;

@@ -41,7 +41,7 @@
 #define __EST_TVector_H__
 
 #include <iostream>
-
+using namespace std;
 #include "EST_bool.h"
 #include "EST_rw_status.h"
 
@@ -85,14 +85,11 @@ extern const int EST_ALL;
 #endif
 
 
-/** @class EST_TVector
- *  @brief Template vector
- *  @ingroup containerclasses
- *  @tparam T Type of vector elements
+/**@name Template vector
 
     This serves as a base class for a vector
-     of type `T`.  This acts as a higher level
-     version of a normal C array as defined as `float *x`, etc.
+     of type <type>T</type>.  This acts as a higher level
+     version of a normal C array as defined as <type>float *x</type> etc.
 
      The vector can be resized after declaration, access can be 
      with or without bounds checking.  Round brackets denote read-only
@@ -101,14 +98,14 @@ extern const int EST_ALL;
 
      The standard operators () and [] should be thought of as 
      having no bounds checking, though they may do so optionally
-     as a compile time option.  The methods EST_TVector::a_check and 
-     EST_TVector::a_nocheck provide explicit boundary checking/nonchecking,
+     as a compile time option.  The methods <method>a_check</method> and 
+     <method>a_nocheck</method> provide explicit boundary checking/nonchecking,
      both const and non-const versions are provided.
 
      Access through () and [] are guaranteed to be as fast as standard
      C arrays (assuming a reasonable optimizing compiler).  
 
-     @code{.cpp}
+     <programlisting>
      EST_FVector x(10);
      int i;
 
@@ -120,27 +117,32 @@ extern const int EST_ALL;
      for (i=10; i < x.length(); ++i)
         x[i] = sqrt((float)i);
 
-     @endcode
+     </programlisting>
 
-     To instantiate a template for a a vector of type `FooBar`
+     To instantiate a template for a a vector of type {FooBar}
 
-     @code{.cpp}
+     <programlisting>
      #include "../base_class/EST_TVector.cc"
      // If you want List to vector conversion (and defined a TList)
      #include "../base_class/EST_Tvectlist.cc"
        
      template class EST_TVector<FooBar>;
-     template std::ostream& operator << 
-          (std::ostream &st, const EST_TVector<FooBar> &v);
-     @endcode
+     template ostream& operator << 
+          (ostream &st, const EST_TVector<FooBar> &v);
+     </programlisting>
 
      The EST library already has template vector instantiations for
-     `int`, `float`, `double` and EST_String.  Also types are defined for them
-     in \ref EST_types.h as EST_IVector, EST_FVector,
-     EST_DVector and EST_StrVector for `int`s,
-     `float`s, `doubles`s and \ref EST_String  respectively.
+     <type>int</type>, <type>float</type>, <type>double</type> and
+     <docppRef linkend='EST_String'>.  Also types are defined for them
+     in <docppRef linkend='EST_types.h'> as <docppRef
+     linkend='EST_IVector'>, <docppRef linkend='EST_FVector'>,
+     <docppRef linkend='EST_DVector'> and <docppRef
+     linkend='EST_StrVector'> for <type>int</type>s,
+     <type>float</type>s, <type>doubles</type>s and <docppRef
+     linkend='EST_String'>s respectively.
 
   * @see matrix_example */
+//@{
 template <class T> 
 class EST_TVector 
 {
@@ -152,26 +154,27 @@ public:
   T *p_memory; 
 
   /// Visible shape
-  ssize_t p_num_columns;
+  unsigned int p_num_columns;
 
   /// How to access the memory
-  ssize_t p_offset;
-  ssize_t p_column_step;
+  unsigned int p_offset;
+  unsigned int p_column_step;
   
   bool p_sub_matrix;
 
   
   /// The memory access rule, in one place for easy reference
-  INLINE ssize_t vcell_pos(ssize_t c, ssize_t cs) const
+  INLINE unsigned int vcell_pos(unsigned int c,
+			        unsigned int cs) const
     {return cs==1?c:c*cs;}
 
-  INLINE ssize_t vcell_pos(ssize_t c) const
+  INLINE unsigned int vcell_pos(unsigned int c) const
     {
       return vcell_pos(c, 
 		      p_column_step);
     }
 
-  INLINE ssize_t vcell_pos_1(ssize_t c) const
+  INLINE unsigned int vcell_pos_1(unsigned int c) const
     {
       return c;
     }
@@ -207,7 +210,7 @@ public:
   EST_TVector(const EST_TVector<T> &v); 
 
   /// "size" constructor - make vector of size n.
-  EST_TVector(ssize_t n); 
+  EST_TVector(int n); 
 
   /// construct from memory supplied by caller
   EST_TVector(int, 
@@ -226,68 +229,68 @@ public:
     */
   static T *error_return;
 
-  /** resize vector. If `set=1`, then the current values in
-      the vector are preserved up to the new length `n`. If the
+  /** resize vector. If <expr>set=1</expr>, then the current values in
+      the vector are preserved up to the new length <parameter>n</parameter>. If the
       new length exceeds the old length, the rest of the vector is
-      filled with the `def_val`
+      filled with the <variable>def_val</variable>
   */
-  void resize(ssize_t n, int set=1); 
+  void resize(int n, int set=1); 
 
   /** For when you absolutely have to have access to the memory.
     */
   const T * memory() const { return p_memory; }
   T * memory(){ return p_memory; }
 
-  /**@name Access
+  /**@name access
     * Basic access methods for vectors.
     */
-  ///@{
+  //@{
 
   /// number of items in vector.
-  INLINE ssize_t num_columns() const {return p_num_columns;}
+  INLINE int num_columns() const {return p_num_columns;}
   /// number of items in vector.
-  INLINE ssize_t length() const {return num_columns();}
+  INLINE int length() const {return num_columns();}
   /// number of items in vector.
-  INLINE ssize_t n() const {return num_columns();}
+  INLINE int n() const {return num_columns();}
 
   /// read-only const access operator: without bounds checking
-  INLINE const T &a_no_check(ssize_t n) const { return fast_a_v_x(n); }
+  INLINE const T &a_no_check(int n) const { return fast_a_v_x(n); }
   /// read/write non-const access operator: without bounds checking
-  INLINE T &a_no_check(ssize_t n) { return fast_a_v_x(n); }
+  INLINE T &a_no_check(int n) { return fast_a_v_x(n); }
   /// read-only const access operator: without bounds checking
-  INLINE const T &a_no_check_1(ssize_t n) const { return fast_a_1(n); }
+  INLINE const T &a_no_check_1(int n) const { return fast_a_1(n); }
   /// read/write non-const access operator: without bounds checking
-  INLINE T &a_no_check_1(ssize_t n) { return fast_a_1(n); }
+  INLINE T &a_no_check_1(int n) { return fast_a_1(n); }
 
   // #define pp_a_no_check(V,N) (pp_fast_a(V,N))
 
   /// read-only const access operator: with bounds checking
-  const T &a_check(ssize_t n) const;
+  const T &a_check(int n) const;
   /// read/write non-const access operator: with bounds checking
-  T &a_check(ssize_t n);
+  T &a_check(int n);
 
-  const T &a(ssize_t n) const { return A_CHECK(n); }
-  T &a(ssize_t n) { return A_CHECK(n); }
+  const T &a(int n) const { return A_CHECK(n); }
+  T &a(int n) { return A_CHECK(n); }
 
   /// read-only const access operator: return reference to nth member
-  const T &operator () (ssize_t n) const {return A_CHECK(n);}
+  const T &operator () (int n) const {return A_CHECK(n);}
 
   // PT
   // /// non const access operator: return reference to nth member
   //  T &operator () (int n) const {return a(n);}
 
   /// read/write non const access operator: return reference to nth member
-  T &operator [] (ssize_t n) { return A_CHECK(n); }
+  T &operator [] (int n) { return A_CHECK(n); }
 
-  ///@}
+  //@}
 
-  void set_memory(T *buffer, int offset, ssize_t columns,
+  void set_memory(T *buffer, int offset, int columns,
 		  int free_when_destroyed=0);
 
   /// assignment operator
   EST_TVector &operator=(const EST_TVector &s);
 
-  /// Fill entire array will value `v`.
+  /// Fill entire array will value <parameter>v</parameter>.
   void fill(const T &v);
 
   /// Fill vector with default value
@@ -307,12 +310,11 @@ public:
   /// Create a sub vector.
   void sub_vector(EST_TVector<T> &sv, int start_c=0, int len=-1);
   /// print out vector.
-    friend std::ostream& operator << (std::ostream &st, const EST_TVector<T> &m)
+    friend ostream& operator << (ostream &st, const EST_TVector<T> &m)
     {
         int i; 
         for (i = 0; i < m.n(); ++i) 
-            st << m(i) << " ";
-        st << std::endl; 
+            st << m(i) << " "; st << endl; 
         return st;
     }
 
@@ -323,7 +325,8 @@ public:
 
 };
 
-/// assignment operator: fill track with values in list `s`.
+//@}
+/// assignment operator: fill track with values in list <parameter>s</parameter>.
 template<class T>
 extern EST_TVector<T> &set(EST_TVector<T> &v, const EST_TList<T> &s);
 

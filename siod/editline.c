@@ -151,7 +151,7 @@ STATIC void TTYput(ECHAR c);
 STATIC void TTYputs(ECHAR *p);
 STATIC void TTYshow(ECHAR c);
 STATIC void TTYstring(ECHAR *p);
-extern int TTYget();
+extern unsigned int TTYget();
 STATIC void TTYinfo();
 STATIC void print_columns(int ac, char **av);
 STATIC void reposition(int reset);
@@ -191,7 +191,7 @@ STATIC STATUS h_risearch();
 STATIC STATUS insert_char(int c);
 STATIC STATUS meta();
 STATIC STATUS emacs(unsigned int c);
-STATIC STATUS TTYspecial(int c);
+STATIC STATUS TTYspecial(unsigned int c);
 STATIC ECHAR *editinput();
 STATIC void hist_add(ECHAR *p);
 STATIC STATUS beg_line();
@@ -229,24 +229,17 @@ extern char	*tgetstr();
 extern int	tgetent();
 extern int	tgetnum();
 #endif	/* defined(USE_TERMCAP) */
-
+
 /*
 **  TTY input/output functions.
 */
 
 void TTYflush()
 {
-    int i;
     if (ScreenCount) {
-        if (el_no_echo == 0) {
-            while(ScreenCount > 0)
-            {
-                i = write(1, Screen, ScreenCount);
-                if (i >= 0)
-                    ScreenCount -= i;
-            }
-        ScreenCount = 0;
-        }
+	if (el_no_echo == 0)
+	    (void)write(1, Screen, ScreenCount);
+	ScreenCount = 0;
     }
 }
 
@@ -384,7 +377,6 @@ STATIC void TTYinfo()
     if (tgetent(buff, term) < 0) {
        TTYwidth = SCREEN_WIDTH;
        TTYrows = SCREEN_ROWS;
-       wfree(buff2);
        return;
     }
     backspace = (ECHAR *)tgetstr("le", &bp);
@@ -681,7 +673,7 @@ STATIC void ceol()
 
 STATIC void clear_line()
 {
-    size_t i;
+    int i;
     TTYputs(bol);
     for (i=screen_pos()/TTYwidth; i > 0; i--)
 	if (upline) TTYputs(upline);
@@ -744,7 +736,7 @@ STATIC STATUS insert_string(ECHAR *p)
 
     return Point == End ? CSstay : CSmove;
 }
-
+
 
 STATIC ECHAR *next_hist()
 {
@@ -1105,7 +1097,6 @@ STATIC STATUS h_risearch()
     s = do_insert_hist((ECHAR *)hist);
     if (patend != 0)
 	for (i=strlen((char *)H.Lines[lpos]); i>cpos; i--) s = bk_char();
-    wfree(pat);
     if (c != ESC)
 	return emacs(c);
     else
@@ -1139,7 +1130,7 @@ STATIC STATUS insert_char(int c)
 
 STATIC STATUS meta()
 {
-    int	c;
+    unsigned int	c;
     KEYMAP		*kp;
 
     if ((c = TTYget()) == EOF)
@@ -1200,7 +1191,7 @@ STATIC STATUS emacs(unsigned int c)
     return s;
 }
 
-STATIC STATUS TTYspecial(int c)
+STATIC STATUS TTYspecial(unsigned int c)
 {
     int i;
     
@@ -1238,7 +1229,7 @@ STATIC STATUS TTYspecial(int c)
 
 STATIC ECHAR *editinput()
 {
-    int	c;
+    unsigned int	c;
 
     Repeat = NO_ARG;
     OldPoint = Point = Mark = End = 0;
@@ -1327,7 +1318,7 @@ void read_history(const char *history_file)
     {
 	ungetc(c,fd);
 	for (i=0; ((c=getc(fd)) != '\n') && (c != EOF); i++)
-	    if (i < 2046)
+	    if (i < 2047)
 		buff[i] = c;
 	buff[i] = '\0';
 	add_history(buff);
@@ -1343,7 +1334,6 @@ void read_history(const char *history_file)
 void
 rl_reset_terminal(char *p)
 {
- (void)p;
 }
 
 void
@@ -1392,7 +1382,8 @@ char *readline(CONST char *prompt)
 }
 
 void
-add_history(char *p)
+add_history(p)
+    char	*p;
 {
     if (p == NULL || *p == '\0')
 	return;
@@ -1403,7 +1394,7 @@ add_history(char *p)
 #endif	/* defined(UNIQUE_HISTORY) */
     hist_add((ECHAR *)p);
 }
-
+
 
 STATIC STATUS beg_line()
 {
@@ -1658,15 +1649,14 @@ STATIC STATUS c_possible()
     ECHAR	**av;
     ECHAR	*word;
     int		ac;
-    ac = 0;
+
     word = find_word();
     /* The (char ***) ((void *) &av) below is to avoid a warning
      * from GCC about casting an unsigned char *** to char ***
      */
-    if (word != NULL) {
-        ac = rl_list_possib((char *)word, (char ***) ((void *) &av));
-        DISPOSE(word);
-    }
+    ac = rl_list_possib((char *)word, (char ***) ((void *) &av));
+    if (word)
+	DISPOSE(word);
     if (ac) {
 	print_columns(ac, (char **)av);
 	reposition(0);
@@ -1711,9 +1701,9 @@ STATIC STATUS transpose()
 
 STATIC STATUS quote()
 {
-    int	c;
+    unsigned int	c;
 
-    return (c = TTYget()) == EOF ? CSeof : insert_char(c);
+    return (c = TTYget()) == EOF ? CSeof : insert_char((int)c);
 }
 
 STATIC STATUS wipe()
@@ -1741,7 +1731,7 @@ STATIC STATUS mk_set()
 
 STATIC STATUS exchange()
 {
-    int c;
+    unsigned int	c;
 
     if ((c = TTYget()) != CTL('X'))
 	return c == EOF ? CSeof : ring_bell();
@@ -1776,7 +1766,7 @@ STATIC STATUS copy_region()
 
 STATIC STATUS move_to_char()
 {
-    int c;
+    unsigned int	c;
     int			i;
     ECHAR		*p;
 
@@ -1797,7 +1787,7 @@ STATIC STATUS fd_word()
 
 STATIC STATUS fd_kill_word()
 {
-    int	i;
+    int		i;
     int OP;
 
     OP = Point;
@@ -1813,7 +1803,7 @@ STATIC STATUS fd_kill_word()
 
 STATIC STATUS bk_word()
 {
-    int	i;
+    int		i;
     ECHAR	*p;
 
     i = 0;
@@ -1866,7 +1856,7 @@ STATIC int argify(ECHAR *line, ECHAR ***avp)
 			p[ac] = NULL;
 			return ac;
 		    }
-		    COPYFROMTO(new, p, i * sizeof (char *));
+		    COPYFROMTO(new, p, i * sizeof (char **));
 		    i += MEM_INC;
 		    DISPOSE(p);
 		    *avp = p = new;
@@ -1884,7 +1874,7 @@ STATIC int argify(ECHAR *line, ECHAR ***avp)
 
 STATIC STATUS last_argument()
 {
-    ECHAR	**av = NULL;
+    ECHAR	**av;
     ECHAR	*p;
     STATUS	s;
     int		ac;
@@ -1901,7 +1891,7 @@ STATIC STATUS last_argument()
     else
 	s = ac ? insert_string(av[ac - 1]) : CSstay;
 
-    if (av != NULL)
+    if (ac)
 	DISPOSE(av);
     DISPOSE(p);
     return s;

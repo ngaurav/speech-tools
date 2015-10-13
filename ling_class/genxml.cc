@@ -49,8 +49,6 @@
 
 #include "ling_class_init.h"
 
-using namespace std;
-
 #if defined(ESTLIBDIRC)
 #    define __STRINGIZE(X) #X
 #    define ESTLIBDIR __STRINGIZE(ESTLIBDIRC)
@@ -93,16 +91,7 @@ public:
     EST_TStringHash<EST_Item_Content *> contents;
 
     
-    GenXML_Parse_State()  : contents(100) {
-      depth = 0;
-      open_depth = 0;
-      rel_start_depth = 0;
-      linear = false;
-      utt = 0;
-      rel = 0;
-      parent = 0;
-      current = 0;
-      }
+    GenXML_Parse_State()  : contents(100) {}
   };
 
 class GenXML_Parser_Class : public XML_Parser_Class
@@ -263,8 +252,8 @@ static void extract_ids(XML_Attribute_List &attributes,
   else if (attributes.present("href"))
     {
       val = attributes.val("href");
-      size_t starts[EST_Regex_max_subexpressions];
-      size_t ends[EST_Regex_max_subexpressions];
+      int starts[EST_Regex_max_subexpressions];
+      int ends[EST_Regex_max_subexpressions];
       
       if (val.matches(simpleIDRegex, 0, starts, ends))
 	{
@@ -427,11 +416,11 @@ static void proccess_features(EST_String name,
 			     EST_Features &f)
 {
   EST_String names[MAX_FEATS];
-  size_t starts[EST_Regex_max_subexpressions];
-  size_t ends[EST_Regex_max_subexpressions];
+  int starts[EST_Regex_max_subexpressions];
+  int ends[EST_Regex_max_subexpressions];
   
-  size_t n = split(defs, names, MAX_FEATS, feat_sep);
-  for(size_t i=0; i<n; i++)
+  int n = split(defs, names, MAX_FEATS, feat_sep);
+  for(int i=0; i<n; i++)
     {
       EST_String def = names[i];
       EST_String feat;
@@ -626,7 +615,7 @@ void GenXML_Parser_Class::element_open(XML_Parser_Class &c,
 #endif
 
     }
-  else {}
+  else
     ; // Skip
 
 }

@@ -34,8 +34,6 @@
 #include "EST_unix.h"
 #include "EST_ling_class.h"
 
-using namespace std;
-
 
 /** @name Feature and Val Classes Example Code
   */
@@ -47,14 +45,7 @@ int main(void)
   /** @name Adding basic information to an EST_Item
   * 
   * An item such as 
-  * \f[
-\left [ 
-\begin{array}{ll}
-\mbox{POS} & \mbox{\emph{Noun}} \\
-\mbox{NAME} & \mbox{\emph{example}} \\
-\mbox{FOCUS} & \mbox{+} \\ 
-\end{array}  \right ]
-\f]
+  * <graphic fileref="../arch_doc/eq01.gif" format="gif"></graphic> 
   * is constructed as follows: (note that
   * the attributes are in capitals by linguistic convention only:
   * attribute names are case sensitive and can be upper or lower
@@ -131,21 +122,11 @@ int main(void)
 
   /** @name Nested feature structures in items
     * 
-    * Nested feature structures such as 
-\f[
-\left [ 
-\begin{array}{ll}
-\mbox{NAME} & \mbox{\emph{d}} \\
-\mbox{PLACE OF ARTICULATION \boxed{1} } & 
-     \left [ \begin{array}{ll} 
-                  \mbox{CORONAL} & \mbox{\emph{+}} \\
-                  \mbox{ANTERIOR} & \mbox{\emph{+}} \\
-             \end{array} \right ] \\
-\mbox{VOICE} & \mbox{\emph{+}} \\ 
-\mbox{CONTINUANT} & \mbox{\emph{--}} \\
-\mbox{SONORANT} & \mbox{\emph{--}} \\ 
-\end{array}  \right ]
-\f]
+    * Nested feature structures such as <xref linkend="eq11"> 
+    * <example ID="eq11">
+    *   <title>Example eq11</title>
+    * <graphic fileref="../arch_doc/eq05.gif" format="gif"></graphic>
+    * </example>
     * can be created in a number of ways:
     */
   //@{

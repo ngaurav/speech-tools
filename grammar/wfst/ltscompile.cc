@@ -44,8 +44,6 @@
 #include "EST_cutils.h"
 #include "EST_WFST.h"
 
-using namespace std;
-
 static LISP lts_find_feasible_pairs(LISP rules);
 static LISP make_fp(LISP in, LISP out);
 static LISP find_outs(LISP rule);
@@ -235,7 +233,7 @@ static void ltsrule_compile(LISP inalpha, LISP outalpha,
 {
     // Return two regexs, one matching with rewrites and another
     // that matches things this rule doesn't match.
-    LISP LC,MAP,RC,/*notMAP,*/r;
+    LISP LC,MAP,RC,notMAP,r;
 
     r = analyse_rule(rule);
     LC = siod_nth(0,r);
@@ -244,7 +242,7 @@ static void ltsrule_compile(LISP inalpha, LISP outalpha,
 
     LC = expand_sets(LC,fp,sets);
     RC = expand_sets(RC,fp,sets);
-    /*notMAP = */find_notMAP(MAP,fp);
+    notMAP = find_notMAP(MAP,fp);
 
 
     LISP kk = cons(LC,cons(MAP,cons(RC,NIL)));

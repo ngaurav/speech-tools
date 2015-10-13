@@ -60,7 +60,8 @@ OSREV=`{ uname -r || echo ""; } 2> /dev/null |
 	sed -e 's/^\([^.]*\)\(\.[^-. ]*\).*/\1\2/'`
 
 # Sort out various flavours of Linux
-case "$OSTYPE" in Linux|GNU|GNU/*)
+if [ "$OSTYPE" = Linux ]
+    then
     if [ -f "/etc/redhat-release" ]
 	then
 	OSTYPE=RedHatLinux
@@ -73,8 +74,7 @@ case "$OSTYPE" in Linux|GNU|GNU/*)
 	# Generic unknown GNU/Linux system.
 	OSTYPE=Linux
     fi
-;;
-esac
+fi
 
 # Make sure we actually have a .mak file for it, otherwise fall back
 # to sensible defaults (for example, kernel version and architecture

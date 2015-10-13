@@ -39,11 +39,8 @@
 #ifndef __AUDIOP_H__
 #define __AUDIOP_H__
 
-#include "EST_Wave.h"
-#include "EST_Option.h"
-
 int play_nas_wave(EST_Wave &inwave, EST_Option &al);
-int play_pulse_wave(EST_Wave &inwave, EST_Option &al);
+int play_esd_wave(EST_Wave &inwave, EST_Option &al);
 int play_sun16_wave(EST_Wave &inwave, EST_Option &al);
 int play_linux_wave(EST_Wave &inwave, EST_Option &al);
 int play_mplayer_wave(EST_Wave &inwave, EST_Option &al);
@@ -52,7 +49,7 @@ int play_irix_wave(EST_Wave &inwave, EST_Option &al);
 int play_macosx_wave(EST_Wave &inwave, EST_Option &al);
 
 int record_nas_wave(EST_Wave &inwave, EST_Option &al);
-int record_pulse_wave(EST_Wave &inwave, EST_Option &al);
+int record_esd_wave(EST_Wave &inwave, EST_Option &al);
 int record_sun16_wave(EST_Wave &inwave, EST_Option &al);
 int record_linux_wave(EST_Wave &inwave, EST_Option &al);
 

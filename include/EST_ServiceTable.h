@@ -39,22 +39,23 @@
 #include "EST_rw_status.h"
 #include "EST_TKVL.h"
 
-/** \class EST_ServiceTable
-  * \brief A global table of known services. Used for fringe and festival servers.
+/** A global table of known services. Used for fringe and festival
+  * servers.
   * 
   * @author Richard Caley <rjc@cstr.ed.ac.uk>
   * @version $Id: EST_ServiceTable.h,v 1.2 2001/04/04 13:11:27 awb Exp $
   */
+
 class EST_ServiceTable {
 
 
 public:
-  /** \class Entry
-    * \brief A service record.  
+  /** A service record.  
     *
     * This is returned by service lookup operations, it contains
     * enough information to contact the server and authenticate yourself.
     */
+
   class Entry
   {
   public:
@@ -107,13 +108,13 @@ public:
     * Servers maintain a per-user file which lists the  processes
     * which are running in server mode by name. These functions read
     * that table.  */
-  ///@{
+  //@{
 
-  /// Read the users default table. `~/.estServices`
+  /// Read the users default table. <filename>~/.estServices</filename>
   static void read_table(void);
   /// Read a specific table.
   static void read_table(EST_String socketsFileName);
-  /// Write the users default table. `~/.estServices`
+  /// Write the users default table. <filename>~/.estServices</filename>
   static void write_table(void);
   /// Write a specific table.
   static void write_table(EST_String socketsFileName);
@@ -122,7 +123,7 @@ public:
   /// Return a list of server names.
   static void names(EST_TList<EST_String> &names, const EST_String type="");
 
-  ///@}
+  //@}
 
   /** Return the entry for the server with the given name and type.
     * If no such entry is found a dummy entry with a port of 0 is returned.

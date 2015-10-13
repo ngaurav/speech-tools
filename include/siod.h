@@ -20,14 +20,13 @@
 #include "EST_Val.h"
 #include "siod_defs.h"
 
-
 int siod_init(int heap_size=DEFAULT_HEAP_SIZE);
 int siod_repl(int interactive);
 void siod_print_welcome(EST_String extra_info);
 void siod_print_welcome(void);
 
 const char *get_c_string(LISP x);
-long int get_c_int(LISP x);
+int get_c_int(LISP x);
 double get_c_double(LISP x);
 float get_c_float(LISP x);
 LISP flocons(double x);
@@ -111,9 +110,9 @@ int parse_url(const EST_String &url,
 	      EST_String &port, 
 	      EST_String &path);
 
-void err(const char *message, LISP x) EST_NORETURN;
-void err(const char *message, const char *s) EST_NORETURN;
-void errswitch(void) EST_NORETURN;
+LISP err(const char *message, LISP x);
+LISP err(const char *message, const char *s);
+LISP errswitch(void);
 
 void siod_list_to_strlist(LISP l, EST_StrList &a);
 LISP siod_strlist_to_list(EST_StrList &a);

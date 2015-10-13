@@ -44,14 +44,12 @@
 #include "EST_math.h"
 #include <ctime>
 
-using namespace std;
-
 bool polynomial_fit(EST_FVector &x, EST_FVector &y, 
 		    EST_FVector &co_effs, int order)
 {
     EST_FVector weights;
     weights.resize(x.n());
-    for(ssize_t i=0; i<x.n(); ++i)
+    for(int i=0; i<x.n(); ++i)
 	weights[i] = 1.0;
     
     return polynomial_fit(x,y,co_effs,weights,order);
@@ -60,6 +58,11 @@ bool polynomial_fit(EST_FVector &x, EST_FVector &y,
 bool polynomial_fit(EST_FVector &x, EST_FVector &y, EST_FVector &co_effs, 
 	       EST_FVector &weights, int order)
 {
+
+    if(order <= 0){
+	cerr << "polynomial_fit : order must be >= 1" << endl;
+	return false;
+    }
 
     if(x.n() != y.n()){
 	cerr << "polynomial_fit : x and y must have same dimension" << endl;
@@ -85,10 +88,10 @@ bool polynomial_fit(EST_FVector &x, EST_FVector &y, EST_FVector &co_effs,
     EST_FVector y1;
     y1.resize(y.n());
     
-    for(ssize_t row=0;row<y.n();row++)
+    for(int row=0;row<y.n();row++)
     {
 	y1[row] = y[row] * weights[row];
-	for(ssize_t col=0;col<=order;col++){
+	for(int col=0;col<=order;col++){
 	    A(row,col) = pow(x[row],(float)col) * weights[row];
 	    
 	}
@@ -128,7 +131,7 @@ bool polynomial_fit(EST_FVector &x, EST_FVector &y, EST_FVector &co_effs,
 
 float matrix_max(const EST_FMatrix &a)
 {
-    ssize_t i, j;
+    int i, j;
     float v = INT_MIN;
     
     for (i = 0; i < a.num_rows(); ++i)
@@ -146,7 +149,7 @@ int square(const EST_FMatrix &a)
 // add all elements in matrix.
 float sum(const EST_FMatrix &a)
 {
-    ssize_t i, j;
+    int i, j;
     float t = 0.0;
     for (i = 0; i < a.num_rows(); ++i)
 	for (j = 0; j < a.num_columns(); ++j)
@@ -157,7 +160,7 @@ float sum(const EST_FMatrix &a)
 // set all elements not on the diagonal to zero.
 EST_FMatrix diagonalise(const EST_FMatrix &a)
 {
-    ssize_t i;
+    int i;
     EST_FMatrix b(a, 0);	// initialise and fill b with zeros
 
     if (a.num_rows() != a.num_columns())
@@ -176,7 +179,7 @@ EST_FMatrix diagonalise(const EST_FMatrix &a)
 void inplace_diagonalise(EST_FMatrix &a)
 {
     // NB - will work on non-square matrices without warning
-    ssize_t i,j;
+    int i,j;
     
     for (i = 0; i < a.num_rows(); ++i)
 	for (j = 0; j < a.num_columns(); ++j)
@@ -184,10 +187,10 @@ void inplace_diagonalise(EST_FMatrix &a)
 		a.a_no_check(i, j) = 0;
 }
 
-EST_FMatrix sub(const EST_FMatrix &a, ssize_t row, ssize_t col)
+EST_FMatrix sub(const EST_FMatrix &a, int row, int col)
 {
-    ssize_t i, j, I, J;
-    ssize_t n = a.num_rows() - 1;
+    int i, j, I, J;
+    int n = a.num_rows() - 1;
     EST_FMatrix s(n, n);
     
     for (i = I = 0; i < n; ++i, ++I)
@@ -207,10 +210,10 @@ EST_FMatrix sub(const EST_FMatrix &a, ssize_t row, ssize_t col)
     return s;
 }
 
-EST_FMatrix row(const EST_FMatrix &a, ssize_t row)
+EST_FMatrix row(const EST_FMatrix &a, int row)
 {
     EST_FMatrix s(1, a.num_columns());
-    ssize_t i;
+    int i;
     
     for (i = 0; i < a.num_columns(); ++i)
 	s(0, i) = a.a(row, i);
@@ -218,10 +221,10 @@ EST_FMatrix row(const EST_FMatrix &a, ssize_t row)
     return s;
 }
 
-EST_FMatrix column(const EST_FMatrix &a, ssize_t col)
+EST_FMatrix column(const EST_FMatrix &a, int col)
 {
     EST_FMatrix s(a.num_rows(), 1);
-    ssize_t i;
+    int i;
     
     for (i = 0; i < a.num_rows(); ++i)
 	s(i, 0) = a.a(i, col);
@@ -232,7 +235,7 @@ EST_FMatrix column(const EST_FMatrix &a, ssize_t col)
 EST_FMatrix triangulate(const EST_FMatrix &a)
 {
     EST_FMatrix b(a, 0);
-    ssize_t i, j;
+    int i, j;
     
     for (i = 0; i < a.num_rows(); ++i)
 	for (j = i; j < a.num_rows(); ++j)
@@ -243,7 +246,7 @@ EST_FMatrix triangulate(const EST_FMatrix &a)
 
 void transpose(const EST_FMatrix &a,EST_FMatrix &b)
 {
-    ssize_t i, j;
+    int i, j;
     b.resize(a.num_columns(), a.num_rows());
     
     for (i = 0; i < b.num_rows(); ++i)
@@ -253,7 +256,7 @@ void transpose(const EST_FMatrix &a,EST_FMatrix &b)
 
 EST_FMatrix backwards(EST_FMatrix &a)
 {
-    ssize_t i, j, n;
+    int i, j, n;
     n = a.num_columns();
     EST_FMatrix t(n, n);
     
@@ -269,7 +272,7 @@ EST_FMatrix backwards(EST_FMatrix &a)
 // where int abs(int) is a macro
 EST_FMatrix fmatrix_abs(const EST_FMatrix &a)
 {
-    ssize_t i, j;
+    int i, j;
     EST_FMatrix b(a, 0);
     
     for (i = 0; i < a.num_rows(); ++i)
@@ -279,9 +282,9 @@ EST_FMatrix fmatrix_abs(const EST_FMatrix &a)
     return b;
 }
 
-static void row_swap(ssize_t from, ssize_t to, EST_FMatrix &a)
+static void row_swap(int from, int to, EST_FMatrix &a)
 {
-    ssize_t i;
+    int i;
     float f;
 
     if (from == to)
@@ -312,12 +315,12 @@ int inverse(const EST_FMatrix &a,EST_FMatrix &inv,int &singularity)
     // This also keeps a record of which rows are which from the original
     // so that it can return which column actually has the singularity
     // in it if it fails to find an inverse.
-    ssize_t i, j, k;
-    ssize_t n = a.num_rows();
+    int i, j, k;
+    int n = a.num_rows();
     EST_FMatrix b = a;  // going to destructively manipulate b to get inv
     EST_FMatrix pos;    // the original position
     float biggest,s;
-    ssize_t r=0,this_row,all_zeros;
+    int r=0,this_row,all_zeros;
 
     singularity = -1;
     if (a.num_rows() != a.num_columns())
@@ -435,8 +438,8 @@ int pseudo_inverse(const EST_FMatrix &a, EST_FMatrix &inv,int &singularity)
 
 float determinant(const EST_FMatrix &a)
 {
-    ssize_t i, j;
-    ssize_t n = a.num_rows();
+    int i, j;
+    int n = a.num_rows();
     float det;
     if (!square(a))
     {
@@ -470,9 +473,9 @@ float determinant(const EST_FMatrix &a)
     return det;
 }
 
-void eye(EST_FMatrix &a, const ssize_t n)
+void eye(EST_FMatrix &a, const int n)
 {
-    ssize_t i,j;
+    int i,j;
     a.resize(n,n);
     for (i=0; i<n; i++)
     {
@@ -485,7 +488,7 @@ void eye(EST_FMatrix &a, const ssize_t n)
 
 void eye(EST_FMatrix &a)
 {
-    ssize_t i,n;
+    int i,n;
     n=a.num_rows();
     if(n != a.num_columns())
     {
@@ -501,7 +504,7 @@ void eye(EST_FMatrix &a)
 EST_FVector add(const EST_FVector &a,const EST_FVector &b)
 {
   // a + b
-  ssize_t a_len = a.length();
+  int a_len = a.length();
   EST_FVector ans( a_len );
   
   if(a_len != b.length()){
@@ -510,7 +513,7 @@ EST_FVector add(const EST_FVector &a,const EST_FVector &b)
     return ans;
   };
 
-  for( ssize_t i=0; i<a_len; i++ )
+  for( int i=0; i<a_len; i++ )
     ans.a_no_check(i) = a.a_no_check(i) + b.a_no_check(i);
 
   return ans;
@@ -519,7 +522,7 @@ EST_FVector add(const EST_FVector &a,const EST_FVector &b)
 EST_FVector subtract(const EST_FVector &a,const EST_FVector &b)
 {
   // a - b
-  ssize_t a_len = a.length();
+  int a_len = a.length();
   EST_FVector ans( a_len );
   
   if(a_len != b.length()){
@@ -528,7 +531,7 @@ EST_FVector subtract(const EST_FVector &a,const EST_FVector &b)
     return ans;
   };
 
-  for( ssize_t i=0; i<a_len; i++ )
+  for( int i=0; i<a_len; i++ )
     ans.a_no_check(i) = a.a_no_check(i) - b.a_no_check(i);
 
   return ans;
@@ -543,7 +546,7 @@ EST_FVector diagonal(const EST_FMatrix &a)
 	cerr << "Can't extract diagonal of non-square matrix !" << endl;
 	return ans;
     }
-    ssize_t i;
+    int i;
     ans.resize(a.num_rows());
     for(i=0;i<a.num_rows();i++)
 	ans.a_no_check(i) = a.a_no_check(i,i);
@@ -555,7 +558,7 @@ float polynomial_value(const EST_FVector &coeffs, const float x)
 {
     float y=0;
 
-    for(ssize_t i=0;i<coeffs.length();i++)
+    for(int i=0;i<coeffs.length();i++)
 	y += coeffs.a_no_check(i) * pow(x,(float)i);
 
     return y;
@@ -576,8 +579,8 @@ void symmetrize(EST_FMatrix &a)
     }
 	      
     // no need to look at entries on the diagonal !
-    for(ssize_t i=0;i<a.num_rows();i++)
-	for(ssize_t j=i+1;j<a.num_columns();j++)
+    for(int i=0;i<a.num_rows();i++)
+	for(int j=i+1;j<a.num_columns();j++)
 	{
 	    f = 0.5 * (a.a_no_check(i,j) + a.a_no_check(j,i));
 	    a.a_no_check(i,j) = a.a_no_check(j,i) = f;
@@ -588,7 +591,7 @@ void
 stack_matrix(const EST_FMatrix &M, EST_FVector &v)
 {
     v.resize(M.num_rows() * M.num_columns());
-    ssize_t i,j,k=0;
+    int i,j,k=0;
     for(i=0;i<M.num_rows();i++)
 	for(j=0;j<M.num_columns();j++)
 	    v.a_no_check(k++) = M(i,j);
@@ -600,8 +603,8 @@ make_random_matrix(EST_FMatrix &M, const float scale)
 {
 
     float r;
-    for(ssize_t row=0;row<M.num_rows();row++)
-	for(ssize_t col=0;col<M.num_columns();col++)
+    for(int row=0;row<M.num_rows();row++)
+	for(int col=0;col<M.num_columns();col++)
 	{
 	    r = scale * ((double)rand()/(double)RAND_MAX);
 	    M.a_no_check(row,col) = r;
@@ -613,7 +616,7 @@ make_random_vector(EST_FVector &V, const float scale)
 {
 
     float r;
-    for(ssize_t i=0;i<V.length();i++)
+    for(int i=0;i<V.length();i++)
     {
 	r = scale * ((double)rand()/(double)RAND_MAX);
 	V.a_no_check(i) = r;
@@ -631,8 +634,8 @@ make_random_symmetric_matrix(EST_FMatrix &M, const float scale)
 
     float r;
 
-    for(ssize_t row=0;row<M.num_rows();row++)
-	for(ssize_t col=0;col<=row;col++)
+    for(int row=0;row<M.num_rows();row++)
+	for(int col=0;col<=row;col++)
 	{
 	    r = scale * ((double)rand()/(double)RAND_MAX);
 	    M.a_no_check(row,col) = r;
@@ -650,7 +653,7 @@ make_random_diagonal_matrix(EST_FMatrix &M, const float scale)
     }
 
     M.fill(0.0);
-    for(ssize_t row=0;row<M.num_rows();row++)
+    for(int row=0;row<M.num_rows();row++)
 	M.a_no_check(row,row) = scale * ((double)rand()/(double)RAND_MAX);
 
 
@@ -666,16 +669,16 @@ make_poly_basis_function(EST_FMatrix &T, EST_FVector t)
 	cerr << "   T.num_rows()=" << T.num_rows() << endl;
 	return;
     }
-    for(ssize_t row=0;row<T.num_rows();row++)
-	for(ssize_t col=0;col<T.num_columns();col++)
+    for(int row=0;row<T.num_rows();row++)
+	for(int col=0;col<T.num_columns();col++)
 	    T.a_no_check(row,col) = pow(t[row],(float)col);
     
 }
 
-ssize_t
+int
 floor_matrix(EST_FMatrix &M, const float floor)
 {
-    ssize_t i,j,k=0;
+    int i,j,k=0;
     for(i=0;i<M.num_rows();i++)
 	for(j=0;j<M.num_columns();j++)
 	    if(M.a_no_check(i,j) < floor)
@@ -695,8 +698,8 @@ cov_prod(const EST_FVector &v1,const EST_FVector &v2)
     EST_FMatrix m;
     m.resize(v1.length(),v2.length());
     
-    for(ssize_t i=0;i<v1.length();i++)
-	for(ssize_t j=0;j<v2.length();j++)
+    for(int i=0;i<v1.length();i++)
+	for(int j=0;j<v2.length();j++)
 	    m.a_no_check(i,j) = v1.a_no_check(i) * v2.a_no_check(j);
 
     return m;

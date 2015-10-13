@@ -45,8 +45,6 @@
 #include "EST_String.h"
 #include "EST_simplestats.h"
 
-using namespace std;
-
 static void Discrete_val_delete_funct(void *d) { delete (int *)d; }
 
 EST_Discrete::~EST_Discrete() 
@@ -99,7 +97,6 @@ bool EST_Discrete::init(const EST_StrList &vocab)
 	{
 	    cerr << "EST_Discrete : found repeated item '";
 	    cerr << vocab(w) << "' in vocab list !" << endl;
-        delete tmp;
 	    return false;
 	}
 
@@ -154,10 +151,10 @@ Discretes::~Discretes()
  
     for (i=0; i<next_free; i++)
 	delete discretes[i];
-    delete[] discretes;
+    delete discretes;
 }
 
-int Discretes::def(const EST_StrList &vocab)
+const int Discretes::def(const EST_StrList &vocab)
 {
     //  Define discrete, increasing the size of the table if need be
     int i,pos;
@@ -168,7 +165,7 @@ int Discretes::def(const EST_StrList &vocab)
 	for (i=0; i<next_free; i++)
 	    new_discretes[i] = discretes[i];
 	max *= 2;
-	delete[] discretes;
+	delete discretes;
 	discretes = new_discretes;
     }
 

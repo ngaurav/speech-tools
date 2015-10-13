@@ -64,8 +64,6 @@ template <> EST_bracketed_string *EST_TVector<EST_bracketed_string>::error_retur
 template class EST_TVector<EST_bracketed_string>;
 #endif
 
-using namespace std;
-
 void set_corpus(EST_Bcorpus &b, LISP examples)
 {
     LISP e;
@@ -464,10 +462,10 @@ void EST_SCFG_traintest::reestimate_grammar_probs(int passes,
 	    rules(r).set_prob(n_prob);
 	}
 	printf("pass %d cross entropy %g RMSE %f %f %d\n",
-	       pass,-(lPc/mC),(rules.length()?sqrt(se/rules.length()):INFINITY),
+	       pass,-(lPc/mC),sqrt(se/rules.length()),
 	       se,rules.length());
 	
-	if (checkpoint != -1 && checkpoint != 0) 
+	if (checkpoint != -1) 
 	{
 	    if ((pass % checkpoint) == checkpoint-1)
 	    {

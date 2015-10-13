@@ -43,8 +43,6 @@
 #include "EST_WFST.h"
 #include "EST_cutils.h"
 
-using namespace std;
-
 ostream &operator << (ostream &s, const EST_WFST &w)
 {
   (void)w;

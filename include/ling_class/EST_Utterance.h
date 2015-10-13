@@ -45,26 +45,28 @@
 #include "ling_class/EST_Item.h"
 #include "EST_Features.h"
 
-/** @class EST_Utterance
-    @ingroup estlingclasses
-  A class that contains EST_Item and EST_Relation between them.
+/** A class that contains <link linkend="est-item">EST_Items</link>
+and <link linkend="est-relation">EST_Relations</link> between them.
 Used for holding interrelated linguistic structures.
+
 */
+
 class EST_Utterance{
 private:
     void copy(const EST_Utterance &u);
     int highest_id;
 public:
     /**@name Constructor and initialisation Functions */
-    ///@{
+    //@{
     /// default constructor
     EST_Utterance();
     EST_Utterance(const EST_Utterance &u) { copy(u); }
     ~EST_Utterance() {clear();}
-    ///@}
+    //@}
+    ///
 
     /**@name Utility Functions */
-    ///@{
+    //@{
     ///  initialise utterance
     void init();
 
@@ -74,14 +76,14 @@ public:
     /// clear the contents of the relations only
     void clear_relations();
 
-    /// set the next id to be `n`
+    /// set the next id to be <parameter>n</parameter>
     void set_highest_id(int n) {highest_id=n;}
     /// return the id of the next item
     int next_id();
-    ///@}
+    //@}
 
     /**@name File i/o */
-    ///@{
+    //@{
     /** load an utterance from an ascii file
       */
     EST_read_status load(const EST_String &filename);
@@ -97,7 +99,7 @@ public:
     /** save an utterance to an ostream
       */
     EST_write_status save(ostream &outf,const EST_String &type) const;
-    ///@}  
+    //@}  
 
     EST_Utterance &operator=(const EST_Utterance &s);
     friend ostream& operator << (ostream &s, const EST_Utterance &u);
@@ -106,7 +108,7 @@ public:
 
     /** Utterance access
      */
-    ///@{
+    //@{
 
     /// Utterance level features
     EST_Features f;
@@ -121,28 +123,27 @@ public:
     int num_relations() const { return relations.length(); }
 
     /** returns true if utterance contains named relations.
-      **name** can be either a single string or a bracketed list
+      {\bf name} can be either a single string or a bracketed list
       of strings e.g. "(Word Phone Syl)".  */
     bool relation_present(const EST_String name) const;
 
     /** returns true if utterance contains all the relations
-      named in the list **name**. */
+      named in the list {\bf name}. */
     bool relation_present(EST_StrList &names) const;
 
     /// get relation by name
     EST_Relation *relation(const char *name,int err_on_not_found=1) const;
 
-    /// return EST_Item whose id is `n`.
+    /// return EST_Item whose id is <parameter>n</parameter>.
     EST_Item *id(const EST_String &n) const;
 
-    /// create a new relation called `n`.
+    /// create a new relation called <parameter>n</parameter>.
     EST_Relation *create_relation(const EST_String &relname);
 
-    /// remove the relation called `n`.
+    /// remove the relation called <parameter>n</parameter>.
     void remove_relation(const EST_String &relname);
 		
     void sub_utterance(EST_Item *i);
-    ///@}
 };
 
 void utt_2_flat_repr( const EST_Utterance &utt,

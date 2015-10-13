@@ -38,6 +38,8 @@
 
 #include <iostream>
 
+using namespace std;
+
 #include "EST_String.h"
 #include "EST_system.h"
 #include "EST_bool.h"
@@ -46,21 +48,19 @@
 #include "instantiate/EST_THashI.h"
 #include "instantiate/EST_TStringHashI.h"
 
-/**@defgroup HashTables Hash Tables
- * @ingroup containerclasses
+/**@name Hash Tables
   *
   * @author Richard Caley <rjc@cstr.ed.ac.uk>
   * @version $Id: EST_THash.h,v 1.6 2004/09/29 08:24:17 robert Exp $
   */
-///@{
+//@{
 
-/** \class EST_HashFunctions
- *  \brief This is just a convenient place to put some useful hash functions.
+/** This is just a convenient place to put some useful hash functions.
   */
 class EST_HashFunctions {
 public:
   /// A generally useful hash function.
-  static unsigned int DefaultHash(const void *data, ssize_t size, unsigned int n);
+  static unsigned int DefaultHash(const void *data, size_t size, unsigned int n);
 
   /// A hash function for strings.
   static  unsigned int StringHash(const EST_String &key, unsigned int size);
@@ -68,8 +68,7 @@ public:
 
 template<class K, class V>  class EST_THash;
 
-/** \class EST_Hash_Pair
- *  \brief This class is used in hash tables to hold a key value pair.
+/** This class is used in hash tables to hold a key value pair.
   * Not much to say beyond that.
   */
 template<class K, class V>
@@ -80,12 +79,6 @@ public:
   /// The value
   V v;
 
-  /// A constructor:
-  EST_Hash_Pair() {
-	  k=K();
-	  v=V();
-	  next=0;
-  }
 private:
   /// Pointer used to chain entries into buckets.
   EST_Hash_Pair<K,V> *next;
@@ -94,11 +87,11 @@ private:
   friend class EST_THash<K, V>;
 };
 
-/** \class EST_THash
- *  \brief An open hash table. The number of buckets should be set to allow
+/** An open hash table. The number of buckets should be set to allow
   * enough space that there are relatively few entries per bucket on
   * average.
   */
+
 template<class K, class V>
 class EST_THash : protected EST_HashFunctions {
 
@@ -143,7 +136,7 @@ public:
   int present(const K &key) const;
 
   /** Return the value associated with the key.
-    * `found` is set to whether such an entry was found.
+    * <parameter>found</parameter> is set to whether such an entry was found.
     */
   V &val(const K &key, int &found) const;
 
@@ -156,7 +149,7 @@ public:
   /// Copy all entries
   void copy(const EST_THash<K,V> &from);
 
-  /// Apply `func` to each entry in the table.
+  /// Apply <parameter>func</parameter> to each entry in the table.
   void map(void (*func)(K&, V&));
     
   /// Add an entry to the table.
@@ -168,30 +161,22 @@ public:
   /// Assignment is a copy operation
   EST_THash<K,V> &operator = (const EST_THash<K,V> &from);
 
-  /// Print the table to `stream` in a human readable format.
+  /// Print the table to <parameter>stream</parameter> in a human readable format.
   void dump(ostream &stream, int all=0);
 
   /**@name Pair Iteration
     *
     * This iterator steps through the table returning key-value pairs. 
     */
-  ///@{
+  //@{
 protected:
   /** A position in the table is given by a bucket number and a
     * pointer into the bucket.
     */
     // struct IPointer{  unsigned int b; EST_Hash_Pair<K, V> *p; };
-    class IPointer{
-      public:
-      unsigned int b;
-      EST_Hash_Pair<K, V> *p;
-      IPointer() {
-        b = 0;
-        p = 0;
-      };
-    };
+    struct IPointer_s{  unsigned int b; EST_Hash_Pair<K, V> *p; };
 
-    //typedef class IPointer_s IPointer;
+    typedef struct IPointer_s IPointer;
 
   /// Shift to point at something.
   void skip_blank(IPointer &ip) const 
@@ -231,28 +216,20 @@ public:
   /// Give the iterator a sensible name.
   typedef EST_TStructIterator< EST_THash<K, V>, IPointer, EST_Hash_Pair<K, V> > Entries;
   typedef EST_TRwStructIterator< EST_THash<K, V>, IPointer, EST_Hash_Pair<K, V> > RwEntries;
-  ///@}
+  //@}
 
   /**@name Key Iteration
     *
     * This iterator steps through the table returning just keys.
     */
-  ///@{
+  //@{
 protected:
   /** A position in the table is given by a bucket number and a
     * pointer into the bucket.
     */
-  class IPointer_k {
-    public:
-    unsigned int b;
-    EST_Hash_Pair<K, V> *p;
-    IPointer_k() {
-      b=0;
-      p=0;
-    };
-  };
+  struct IPointer_k_s {  unsigned int b; EST_Hash_Pair<K, V> *p; };
 
-  //typedef struct IPointer_k_s IPointer_k;
+  typedef struct IPointer_k_s IPointer_k;
 
   /// Shift to point at something.
   void skip_blank(IPointer_k &ip) const 
@@ -290,21 +267,21 @@ public:
   /// Give the iterator a sensible name.
   typedef EST_TIterator< EST_THash<K, V>, IPointer_k, K > KeyEntries;
   typedef EST_TRwIterator< EST_THash<K, V>, IPointer_k, K > KeyRwEntries;
-  ///@}
+  //@}
 
 };
 
-/** \class EST_TStringHash
-  * \brief A specialised hash table for when the key is an EST_String.
+/** A specialised hash table for when the key is an EST_String.
   *
-  * This is just a version of EST_THash which
+  * This is just a version of <classname>EST_THash</classname> which
   * has a different default hash function.
   */
+
 template<class V>
 class EST_TStringHash : public EST_THash<EST_String, V> {
 public:
 
-  /// Create a string hash table of `size` buckets.
+  /// Create a string hash table of <parameter>size</parameter> buckets.
   EST_TStringHash(int size) : EST_THash<EST_String, V>(size, EST_HashFunctions::StringHash) {};
 
   /// An entry returned by the iterator is a key value pair.
@@ -322,6 +299,7 @@ public:
   
    typedef EST_TRwStructIterator< EST_THash<EST_String, V>, typename EST_THash<EST_String, V>::IPointer,
  				    EST_Hash_Pair<EST_String, V> > RwEntries;
+  //@}
 
   typedef EST_String KeyEntry;
 
@@ -339,11 +317,10 @@ public:
  			    EST_String > KeyRwEntries;
 };
 
-  ///@}
-  
-/** \brief The default hash function used by EST_THash
+
+/** The default hash function used by <classname>EST_THash</classname>
   */
-inline static unsigned int DefaultHashFunction(const void *data, ssize_t size, unsigned int n)
+inline static unsigned int DefaultHashFunction(const void *data, size_t size, unsigned int n)
 {
   unsigned int x=0;
   const char *p = (const char *)data;
@@ -352,4 +329,5 @@ inline static unsigned int DefaultHashFunction(const void *data, ssize_t size, u
   return x;
 }
 
+//@}
 #endif

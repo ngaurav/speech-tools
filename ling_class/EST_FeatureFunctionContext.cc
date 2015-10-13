@@ -144,16 +144,16 @@ bool EST_FeatureFunctionContext::package_included(const EST_String name) const
   return get_package(name) != NULL;
 }
 
-EST_Item_featfunc EST_FeatureFunctionContext::get_featfunc(const EST_String name, 
+const EST_Item_featfunc EST_FeatureFunctionContext::get_featfunc(const EST_String name, 
 							   int must)
 {
-  size_t pos, len;
+  int pos, len;
 
 
   if (cache.present(name))
       return cache.val(name);
 
-  if ((pos= name.search(separator, len, 0))!= EST_STRING_ERR_IDX)
+  if ((pos= name.search(separator, len, 0))>=0)
     {
 	const EST_Item_featfunc func2 = 
 	    get_featfunc(name.before(pos,separator.length()), 
@@ -189,7 +189,7 @@ EST_Item_featfunc EST_FeatureFunctionContext::get_featfunc(const EST_String name
   return NULL;
 }
 
-EST_Item_featfunc EST_FeatureFunctionContext::get_featfunc(const EST_String pname,
+const EST_Item_featfunc EST_FeatureFunctionContext::get_featfunc(const EST_String pname,
 							   const EST_String name, 
 							   int must)
 {

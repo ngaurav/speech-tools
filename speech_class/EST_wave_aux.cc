@@ -48,27 +48,25 @@
 #include "EST_io_aux.h"
 #include "EST_error.h"
 
-using namespace std;
-
 void extract(EST_Wave &sig, EST_Option &al);
 
 /* Allow EST_Wave to be used in an EST_Val */
 VAL_REGISTER_CLASS(wave,EST_Wave)
 
 static EST_TValuedEnumDefinition<EST_sample_type_t, const char *,NO_INFO> st_names[] = {
-{st_unknown,  {"undef"},0},
-{st_schar, {"schar","byte"},0},
-{st_uchar, {"uchar"},0},
-{st_short, {"short"},0},
-{st_shorten, {"shorten"},0},
-{st_int, {"int"},0},
-{st_float, {"float"},0},
-{st_double, {"double"},0},
-{st_mulaw, {"mulaw"},0},
-{st_adpcm, {"adpcm"},0},
-{st_alaw, {"alaw"},0},
-{st_ascii, {"ascii"},0},
-{st_unknown, {0},0}
+{st_unknown,  {"undef"}},
+{st_schar, {"schar","byte"}},
+{st_uchar, {"uchar"}},
+{st_short, {"short"}},
+{st_shorten, {"shorten"}},
+{st_int, {"int"}},
+{st_float, {"float"}},
+{st_double, {"double"}},
+{st_mulaw, {"mulaw"}},
+{st_adpcm, {"adpcm"}},
+{st_alaw, {"alaw"}},
+{st_ascii, {"ascii"}},
+{st_unknown, {0}}
 };
 
 EST_TNamedEnum<EST_sample_type_t> EST_sample_type_map(st_names);
@@ -116,7 +114,6 @@ void extract_channels(EST_Wave &single, const EST_Wave &multi,
 	multi.copy_channel(channel, buf);
 	single.set_channel(i, buf);
     }
-    delete[] buf;
 }
 
 int wave_extract_channel(EST_Wave &single, const EST_Wave &multi, int channel)
@@ -290,7 +287,7 @@ EST_String options_wave_input(void)
 	"    endian)\n\n"
 	"-iswap  Swap bytes. (For use on an unheadered input file)\n\n"
 	"-istype <string> Sample type in an unheadered input file:\n"
-	"     short, alaw, mulaw, byte, ascii\n\n"
+	"     short, mulaw, byte, ascii\n\n"
 	"-c <string>  Select a single channel (starts from 0). \n"
 	"    Waveforms can have multiple channels. This option \n"
         "    extracts a single channel for progcessing and \n"
@@ -321,7 +318,7 @@ EST_String options_wave_output(void)
 	"    Intel, Alpha, DEC Mips, Vax are LSB \n"
 	"    (little endian)\n\n"
 	"-oswap Swap bytes when saving to output\n\n"+
-	"-ostype <string> Output sample type: short, alaw, mulaw, byte or ascii\n\n";
+	"-ostype <string> Output sample type: short, mulaw, byte or ascii\n\n";
 }
 
 Declare_TNamedEnum(EST_sample_type_t)

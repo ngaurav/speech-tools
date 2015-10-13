@@ -42,6 +42,7 @@
 
 #include <iostream>
 #include <cmath>
+using namespace std;
 
 
 #ifndef PI
@@ -49,13 +50,11 @@
 #endif
 
 
-/** \class EST_Complex
-    \brief A class for complex numbers.
-
-The class stores the values as
+/** A class for complex numbers. The class stores the values as
 cartesian real and imaginary parts, but these can be read as polar
-coordinates using the EST_Complex::mag() and EST_Complex::ang() methods. Addition,
+coordinates using the {\tt mag()} and {\tt ang()} functions. Addition,
 subtraction, multiplication and division are supported. */
+
 class EST_Complex {
  private:
     double r;
@@ -103,7 +102,7 @@ friend EST_Complex operator / (const EST_Complex &z, float x);
 friend EST_Complex operator / (float x, const EST_Complex &z);
 
 
-friend std::ostream& operator<< (std::ostream& s,  const EST_Complex& a)
+friend ostream& operator<< (ostream& s,  const EST_Complex& a)
 { s << a.r << " " << a.i; return s;}
 };  
 

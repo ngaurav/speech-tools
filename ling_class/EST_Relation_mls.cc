@@ -60,13 +60,13 @@ int linked(EST_Item *from, EST_Item *to)
 
 void add_link(EST_Item *from, EST_Item *to)
 {
-    EST_Item *d;
+    EST_Item *d,*q;
 
     // structurally add it 
     d = from->down();
     if (!d)
 	d = from->append_daughter();
-    d->append_daughter()->append_daughter(to);
+    q = d->append_daughter()->append_daughter(to);
     // Also add it to the simple list of the relation so traversal works
     // append q 
     

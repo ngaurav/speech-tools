@@ -48,7 +48,6 @@
 #ifndef __EST_VAL_H__
 #define __EST_VAL_H__
 
-#include <cstdlib>
 #include "EST_String.h"
 #include "EST_error.h"
 #include "EST_Contents.h"
@@ -61,53 +60,43 @@ extern val_type val_int;
 extern val_type val_float;
 extern val_type val_string;
 
-/** @defgroup estlingclasses Linguistic classes
- * List of all linguistic classes
- */
-
-/** @class EST_Val
-    @ingroup estlingclasses
-    The EST_Val class is a container class, used to store a single
+/** The EST_Val class is a container class, used to store a single
     item which can be an int, float, string or other user-defined
-    class. It is often used as the base item in the EST_Features
-    class, to enable features to take on values of different types.
+    class. It is often used as the base item in the <link
+    linkend="est-features">EST_Features</link> class, to enable features
+    to take on values of different types.
 */
+
 class EST_Val {
   private:
     val_type t;
-    union
-    { ssize_t ival;
-      float fval;
+    union 
+    { int ival;
+      float fval; 
       EST_Contents *pval;} v;
     // * may have a string name as well as a value
     EST_String sval;
-    ssize_t to_int() const;
-    float to_flt() const;
+    const int to_int() const;
+    const float to_flt() const;
     const EST_String &to_str() const;
   public:
-    /** @name Constructor and Destructor functions
+    /**@name Constructor and Destructor functions
      */
 
-    ///@{
+    //@{
     /** Default constructor */
-    EST_Val()
+    EST_Val() 
 	{t=val_unset;}
 
     /** Copy constructor for another EST_Val*/
     EST_Val(const EST_Val &val);
 
-	#if (SSIZE_MAX != INT_MAX)
     /** Copy constructor for an int*/
-    EST_Val(const int i)
-	{t=val_int; v.ival=i;}
-	#endif
-
-    /** Copy constructor for an ssize_t*/
-    EST_Val(const ssize_t i)
+    EST_Val(const int i) 
 	{t=val_int; v.ival=i;}
 
     /** Copy constructor for a float*/
-    EST_Val(const float f)
+    EST_Val(const float f) 
 	{t=val_float; v.fval=f;}
 
     /** Copy constructor for a double*/
@@ -126,31 +115,31 @@ class EST_Val {
     /** Destructor */
     ~EST_Val(void);
 
-    ///@}
+    //@}
 
     /**@name Getting cast values
      */
 
-    ///@{
+    //@{
 
     /** returns the type that the val is currently holding */
-    val_type type(void) const
+    const val_type type(void) const 
 	{return t;}
-
+    
     /** returns the value, cast as an int */
-    int Int(void) const
+    const int Int(void) const 
 	{if (t==val_int) return v.ival; return to_int();}
 
     /** returns the value, cast as an int */
-    ssize_t I(void) const
+    const int I(void) const 
 	{ return Int(); }
 
     /** returns the value, cast as a float */
-    float Float(void) const
+    const float Float(void) const 
 	{if (t==val_float) return v.fval; return to_flt();}
 
     /** returns the value, cast as a float */
-    float F(void) const
+    const float F(void) const 
 	{ return Float(); }
 
     /** returns the value, cast as a string */
@@ -168,7 +157,7 @@ class EST_Val {
     /** returns the value, cast as a string */
     const EST_String &string_only(void) const {return sval;}
 
-    ///@}
+    //@}
 
     // Humans should never call this only automatic functions
     const void *internal_ptr(void) const
@@ -177,15 +166,10 @@ class EST_Val {
     /**@name Setting values
      */
 
-    ///@{
+    //@{
 
-	#if (SSIZE_MAX != INT_MAX)
     /** Assignment of val to an int */
     EST_Val &operator=(const int i) { t=val_int; v.ival=i; return *this;}
-    #endif
-
-    /** Assignment of val to an ssize_t */
-    EST_Val &operator=(ssize_t i) { t=val_int; v.ival=i; return *this;}
 
     /** Assignment of val to a float */
     EST_Val &operator=(const float f) { t=val_float; v.fval=f; return *this;}
@@ -202,12 +186,12 @@ class EST_Val {
     /** Assignment of val to another val*/
     EST_Val &operator=(const EST_Val &c);
 
-    ///@}
+    //@}
 
     /**@name Equivalence test
      */
 
-    ///@{
+    //@{
 
 
     /** Test whether val is equal to a*/
@@ -243,22 +227,19 @@ class EST_Val {
     /** Test whether val is not equal to the double float a*/
     int operator !=(const double &d) const { return (Float() != d); }
 
-    ///@{
+    //@{
 
-    /**@name Automatic casting
+    /**@name Automatic casting 
      */
-    ///@{
-    /** Automatically cast val as an ssize_t*/
-    operator ssize_t() const { return Int(); }
-	#if (SSIZE_MAX != INT_MAX)
+    //@{
+
     /** Automatically cast val as an int*/
     operator int() const { return Int(); }
-    #endif
     /** Automatically cast val as an float*/
     operator float() const { return Float(); }
     /** Automatically cast val as an string*/
     operator EST_String() const { return string(); }
-    ///@}
+    //@}
     /** print val*/
     friend ostream& operator << (ostream &s, const EST_Val &a)
     { if (a.type() == val_unset) s << "[VAL unset]" ;
@@ -269,7 +250,6 @@ class EST_Val {
       return s;
     }
 };
-///@}
 
 inline const char *error_name(const EST_Val val) { return (EST_String)val;}
 

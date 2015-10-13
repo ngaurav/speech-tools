@@ -50,7 +50,6 @@
 #include <cstring>
 #include <cstdlib>
 #include <cctype>
-#include <iostream>
 #include <sys/stat.h>
 #include "EST_cutils.h"
 #include "EST_walloc.h"
@@ -60,8 +59,6 @@
 #include "audioP.h"
 #include "EST_io_aux.h"
 #include "EST_error.h"
-
-using namespace std;
 
 #ifdef SUPPORT_FREEBSD16
 #include <sys/soundcard.h>
@@ -246,7 +243,6 @@ int play_linux_wave(EST_Wave &inwave, EST_Option &al)
 	      THREAD_UNPROTECT();
 	      EST_warning("%s: failed to write to buffer (sr=%d)",aud_sys_name, sample_rate );
 		close(audio);
-        delete[] buf;
 		return -1;
 	    }
 	    // ioctl(audio, SNDCTL_DSP_SYNC, 0);
@@ -260,9 +256,6 @@ int play_linux_wave(EST_Wave &inwave, EST_Option &al)
       cerr << aud_sys_name << ": unable to set sample rate " <<
 	sample_rate << endl;
       close(audio);
-      if (waveform2 != waveform)
-         wfree(waveform2);
-      wfree(waveform);
       return -1;
     }
     
@@ -334,7 +327,6 @@ int record_linux_wave(EST_Wave &inwave, EST_Option &al)
 		cerr << aud_sys_name << ": failed to read from audio device"
 		    << endl;
 		close(audio);
-        wfree(waveform2);
 		return -1;
 	    }
 	}
@@ -404,7 +396,7 @@ int record_linux_wave(EST_Wave &inwave, EST_Option &al)
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-/*static const char *aud_sys_name = "ALSALINUX";*/
+static const char *aud_sys_name = "ALSALINUX";
 
 // Code to block signals while sound is playing.
 // Needed inside Java on (at least some) linux systems
@@ -619,9 +611,6 @@ static int recover_from_error(snd_pcm_t *pcm_handle, ssize_t res)
 {
   if (res == -EPIPE) /* xrun */
   {
-	EST_warning("xrun has occured. This suggests ALSA buffer is "
-	            "underflowing. Possibly change audio output methods "
-	            "or use a faster or more lightly loaded device");
 	res = snd_pcm_prepare(pcm_handle);
 	if (res < 0) 
 	{
@@ -736,15 +725,14 @@ int play_linux_wave(EST_Wave &inwave, EST_Option &al)
     int sample_rate;
     short *waveform;
     int num_samples;
-    /*const char *audiodevice;*/
+    const char *audiodevice;
     cst_audiodev *ad;
-    (void) al;
-    /*
+
     if (al.present("-audiodevice"))
 	audiodevice = al.val("-audiodevice");
     else
 	audiodevice = "/dev/dsp";
-    */
+
     waveform = inwave.values().memory();
     num_samples = inwave.num_samples();
     sample_rate = inwave.sample_rate();
@@ -869,11 +857,74 @@ int record_linux_wave(EST_Wave &inwave, EST_Option &al)
     }
 
     close(audio);
-#else /* if 0 */
-    (void) inwave;
-    (void) al;
 #endif /* 0 */ 
     return 0;
+}
+
+#else
+
+#ifdef SUPPORT_PULSEAUDIO
+#include <pulse/simple.h>
+
+int freebsd16_supported = FALSE;
+int linux16_supported = TRUE;
+
+static const char *aud_sys_name = "PULSEAUDIO";
+
+#define AUDIOBUFFSIZE 256
+// #define AUDIOBUFFSIZE 20480
+
+int play_linux_wave(EST_Wave &inwave, EST_Option &al)
+{
+    pa_sample_spec *ss;
+    pa_simple *s;
+    short *waveform;
+    int num_samples;
+    int err=0, i, r;
+
+    ss = walloc(pa_sample_spec,1);
+    ss->rate = inwave.sample_rate();
+    ss->channels = inwave.num_channels();
+
+    if (EST_BIG_ENDIAN)
+        ss->format = PA_SAMPLE_S16BE;
+    else
+        ss->format = PA_SAMPLE_S16LE;
+    
+    s = pa_simple_new(
+                    NULL,      /* use default server */
+                    "festival",
+                    PA_STREAM_PLAYBACK,
+                    NULL,      /* use default device */
+                    "Speech",
+                    ss,
+                    NULL,      /* default channel map */
+                    NULL,      /* default buffering attributes */
+                    &err);
+    if (err < 0)
+        return NULL;
+
+    waveform = inwave.values().memory();
+    num_samples = inwave.num_samples();
+
+    for (i=0; i < num_samples; i += AUDIOBUFFSIZE/2)
+    {
+        if (i + AUDIOBUFFSIZE/2 < num_samples)
+            pa_simple_write(s,&waveform[i],(size_t)AUDIOBUFFSIZE,&err);
+        else
+            pa_simple_write(s,&waveform[i],(size_t)(num_samples-i)*2,&err);
+    }
+
+    pa_simple_drain(s,&err);
+    pa_simple_free(s);
+    wfree(ss);
+
+    return 1;
+}
+
+int record_linux_wave(EST_Wave &inwave, EST_Option &al)
+{
+    return -1;
 }
 
 #else /* not supported */
@@ -885,17 +936,18 @@ int play_linux_wave(EST_Wave &inwave, EST_Option &al)
 {
     (void)inwave;
     (void)al;
-    cerr << "ALSA audio support not compiled." << endl;
+    cerr << "MacOS X audio support not compiled." << endl;
     return -1;
 }
 int record_linux_wave(EST_Wave &inwave, EST_Option &al)
 {
     (void)inwave;
     (void)al;
-    cerr << "ALSA audio support not compiled." << endl;
+    cerr << "MacOS X audio support not compiled." << endl;
     return -1;
 }
 
-#endif /* ALSALINUX */
-
+#endif /* ALSA */
+#endif /* PULSEAUDIO */
 #endif /* VOXWARE */
+
